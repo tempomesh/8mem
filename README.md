@@ -52,6 +52,12 @@ You:   forget my launch replies should be concise
 8mem:  Forgotten.
 ```
 
+## Dashboard demo
+
+![8mem dashboard flow](assets/dashboard-flow.gif)
+
+The dashboard makes memory visible: what is saved, what is being used, what changed, and what was corrected or forgotten.
+
 ## Quickstart
 
 Install:
