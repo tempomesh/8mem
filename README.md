@@ -131,6 +131,19 @@ Telegram setup needs your own BotFather token and a public HTTPS webhook URL if 
 
 8mem does not bundle OpenClaw or Hermes.
 
+## Generated runtime files
+
+8mem does not ship your runtime `AGENTS.md`, `SOUL.md`, `HEARTBEAT.md`, `MEMORY-API.md`, or machine-specific hook files.
+
+Those files are generated locally during setup:
+
+```bash
+8mem setup --mode openclaw
+8mem setup --mode hermes
+```
+
+This keeps the public repo clean and prevents private agent files, local paths, webhook secrets, or machine-specific integration state from being committed. The setup command writes only the integration block needed for that local runtime, including memory context injection, explicit remember/correct/forget handling, and webhook/callback wiring where the runtime supports it.
+
 ## Architecture
 
 ```text
