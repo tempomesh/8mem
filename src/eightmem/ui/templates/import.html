@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="header">
+  <div>
+    <div class="kicker">Import</div>
+    <h2 style="margin:8px 0 0">Import Conversations</h2>
+    <div class="small">Give 8mem past conversations so it can learn what AI should remember about you.</div>
+  </div>
+  <span class="badge gold">First-run flow</span>
+</div>
+
+{% if status == "analyzed" %}
+<div class="footer">Upload analyzed and memory updated.</div>
+{% elif status == "sample-loaded" %}
+<div class="footer">Sample chat analyzed into memory files.</div>
+{% elif status == "sample-missing" %}
+<div class="footer">Sample file not found in this environment.</div>
+{% endif %}
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>Supported input</h3>
+    <ul>
+      <li>Chat exports (.json, nested json)</li>
+      <li>Transcript text files (.txt)</li>
+      <li>Conversation logs from tools</li>
+    </ul>
+    <form action="/analyze-upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" required />
+      <div class="actions">
+        <button class="btn primary" type="submit">Analyze and build memory</button>
+      </div>
+    </form>
+    <form action="/import-sample" method="post">
+      <div class="actions">
+        <button class="btn" type="submit">Use sample data</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>What 8mem learns</h3>
+    <table class="table">
+      <tr><th>Signal</th><th>Example</th></tr>
+      <tr><td>Identity</td><td>I am a founder building a local-first product.</td></tr>
+      <tr><td>Preferences</td><td>Please keep answers concise and practical.</td></tr>
+      <tr><td>Corrections</td><td>Don't use emojis in professional responses.</td></tr>
+      <tr><td>Decisions</td><td>We decided to launch CLI first.</td></tr>
+      <tr><td>Evolution</td><td>Recently I moved to weekly release reviews.</td></tr>
+    </table>
+  </div>
+</div>
+{% endblock %}

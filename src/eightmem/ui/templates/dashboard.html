@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="header">
+  <div>
+    <div class="kicker">Memory Passport</div>
+    <h2 style="margin:8px 0 0">The memory your AI can finally keep.</h2>
+    <div class="small">Active profile: <strong>{{ active_scope.label }}</strong></div>
+  </div>
+  <span class="badge green">Portable memory ready</span>
+</div>
+
+<div class="grid cols-3">
+  <div class="card stat-card">
+    <div class="small">About you</div>
+    <div class="metric">{{ counts.identity }}</div>
+    <div class="small">role, focus, projects</div>
+  </div>
+  <div class="card stat-card">
+    <div class="small">Preferences</div>
+    <div class="metric">{{ counts.preferences }}</div>
+    <div class="small">tone, format, style</div>
+  </div>
+  <div class="card stat-card">
+    <div class="small">Corrections</div>
+    <div class="metric">{{ counts.corrections }}</div>
+    <div class="small">mistakes 8mem should not repeat</div>
+  </div>
+</div>
+
+{% if undo %}
+<div class="grid cols-1">
+  <div class="card">
+    <h3>Trust controls</h3>
+    <div class="small" style="margin-bottom:12px">{{ undo.detail }}</div>
+    <form method="post" action="/memory/undo{{ active_scope.query_suffix }}">
+      <button class="btn" type="submit">{{ undo.label }}</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>Your memory map</h3>
+    <div class="list">
+      {% for file in memory_state %}
+      <div class="item passport-item">
+        <strong>{{ file.label }}</strong>
+        <span class="small">{{ file.friendly_desc }}</span>
+        {% if file.preview %}
+        <div class="small" style="margin-top:6px">{{ file.preview[0] }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <h3>Memory health</h3>
+    <div class="small" style="margin-bottom:12px">Status: <strong>{{ health.label }}</strong></div>
+    <div class="list">
+      {% for item in health.signals %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>Portable intelligence</h3>
+    <div class="small" style="margin-bottom:12px">
+      {{ structured.active_fact_count }} active facts, {{ structured.derived_fact_count }} derived facts
+    </div>
+    <div class="list">
+      {% for item in structured.highlights %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% else %}
+      <div class="item"><span class="small">No derived structured highlights yet.</span></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <h3>Why 8mem trusts this</h3>
+    <div class="list">
+      {% for item in trust_basis %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% else %}
+      <div class="item"><span class="small">Trust explanation will appear after the first saved memory.</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid cols-1">
+  <div class="card">
+    <h3>Recent memory changes</h3>
+    <div class="list">
+      {% for item in timeline %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% if resolutions %}
+<div class="grid cols-1">
+  <div class="card">
+    <h3>Resolve contradictions</h3>
+    <div class="list">
+      {% for item in resolutions %}
+      <div class="item">
+        <strong>{{ item.title }}</strong>
+        <div class="small" style="margin-top:6px">{{ item.reason }}</div>
+        <div class="small" style="margin-top:6px">{{ item.note }}</div>
+        <div style="margin-top:10px">
+          <a class="btn" href="{{ item.href }}">{{ item.action_label }}</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

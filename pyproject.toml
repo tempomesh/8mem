@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "8mem"
+version = "0.1.5"
+description = "8mem: local-first memory layer for AI chats"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Ashish Verma" }]
+maintainers = [{ name = "8mem Contributors" }]
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+keywords = ["ai", "memory", "telegram", "local-first", "ollama"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "typer>=0.12.0",
+  "fastapi>=0.115.0",
+  "uvicorn>=0.30.0",
+  "jinja2>=3.1.0",
+  "python-multipart>=0.0.9",
+  "pillow>=10.0.0",
+  "ruamel.yaml>=0.18.0",
+]
+
+[project.urls]
+Homepage = "https://8mem.com"
+Documentation = "https://8mem.com"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2.0", "httpx>=0.27.0"]
+semantic = ["sqlite-vec>=0.1.9"]
+
+[project.scripts]
+"8mem" = "eightmem.cli.main:app"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+eightmem = ["resources/integrations/openclaw/*.ts", "resources/integrations/openclaw/*.js"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

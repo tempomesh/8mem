@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="header">
+  <div>
+    <div class="kicker">What AI Knows</div>
+    <h2 style="margin:8px 0 0">Your memory mirror</h2>
+    <div class="small">A clean view of the context your AI can use right now.</div>
+    <div class="small">Active profile: <strong>{{ active_scope.label }}</strong></div>
+  </div>
+  <span class="badge blue">Screenshot-friendly</span>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>About you</h3>
+    <div class="list">
+      {% for item in sections['IDENTITY.md'][:8] %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% else %}
+      <div class="item"><span class="small">(empty)</span></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Preferences</h3>
+    <div class="list">
+      {% for item in sections['PREFERENCES.md'][:8] %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% else %}
+      <div class="item"><span class="small">(empty)</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>Memory health</h3>
+    <div class="small" style="margin-bottom:12px">Status: <strong>{{ health.label }}</strong></div>
+    <div class="list">
+      {% for item in health.signals %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Corrections</h3>
+    <div class="list">
+      {% for item in sections['CORRECTIONS.md'][:8] %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% else %}
+      <div class="item"><span class="small">(empty)</span></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Needs review</h3>
+    <div class="list">
+      {% for item in tensions %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% else %}
+      <div class="item"><span class="small">None detected.</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>Portable intelligence</h3>
+    <div class="small" style="margin-bottom:12px">
+      {{ structured.active_fact_count }} active facts, {{ structured.derived_fact_count }} derived facts
+    </div>
+    <div class="list">
+      {% for item in structured.highlights %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% else %}
+      <div class="item"><span class="small">No derived structured highlights yet.</span></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Why 8mem trusts this</h3>
+    <div class="list">
+      {% for item in trust_basis %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% else %}
+      <div class="item"><span class="small">Trust explanation will appear after the first saved memory.</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid cols-1">
+  <div class="card">
+    <h3>Recent memory changes</h3>
+    <div class="list">
+      {% for item in timeline %}
+      <div class="item"><span class="small">{{ item }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% if resolutions %}
+<div class="grid cols-1">
+  <div class="card">
+    <h3>Resolve contradictions</h3>
+    <div class="list">
+      {% for item in resolutions %}
+      <div class="item">
+        <strong>{{ item.title }}</strong>
+        <div class="small" style="margin-top:6px">{{ item.reason }}</div>
+        <div class="small" style="margin-top:6px">{{ item.note }}</div>
+        <div style="margin-top:10px">
+          <a class="btn" href="{{ item.href }}">{{ item.action_label }}</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

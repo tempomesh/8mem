@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="header">
+  <div>
+    <div class="kicker">Memory Library</div>
+    <h2 style="margin:8px 0 0">Review what 8mem remembers</h2>
+    <div class="small">Active profile: <strong>{{ active_scope.label }}</strong></div>
+  </div>
+  <span class="badge gold">Human-readable</span>
+</div>
+
+<div class="footer">
+  This is the advanced local control view. 8mem keeps memory readable and editable,
+  but the everyday experience should feel like a memory passport, not a folder of files.
+</div>
+
+<div class="grid cols-3">
+  {% for file in files %}
+  <div class="card">
+    <h3><a href="/files/{{ file.slug }}{{ active_scope.query_suffix }}">{{ file.label }}</a></h3>
+    <p>{{ file.friendly_desc }}</p>
+    <div class="small">Entries: {{ file.count }}</div>
+    {% if file.preview %}
+    <div class="small" style="margin-top:8px">{{ file.preview[0] }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

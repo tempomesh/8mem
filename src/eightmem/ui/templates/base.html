@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>8mem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260603-theme4" />
+  </head>
+  <body data-theme="dark">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-logo" src="/static/logo.svg" alt="8mem logo" />
+          <p>The memory your AI can finally keep.</p>
+        </div>
+        <nav class="nav">
+          <div class="nav-section">Start</div>
+          <a class="{% if active_page == 'overview' %}active{% endif %}" href="/overview{{ active_scope.query_suffix }}">Start Here</a>
+          <a class="{% if active_page == 'chat' %}active{% endif %}" href="/chat{{ active_scope.query_suffix }}">Memory Test</a>
+          <div class="nav-section">Memory</div>
+          <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="/{{ active_scope.query_suffix }}">Memory Passport</a>
+          <a class="{% if active_page == 'import' %}active{% endif %}" href="/import{{ active_scope.query_suffix }}">Import Conversations</a>
+          <a class="{% if active_page == 'mirror' %}active{% endif %}" href="/mirror{{ active_scope.query_suffix }}">What AI Knows</a>
+          <a class="{% if active_page == 'inbox' %}active{% endif %}" href="/inbox{{ active_scope.query_suffix }}">Review Queue</a>
+          <div class="nav-section">Control</div>
+          <a class="{% if active_page == 'files' %}active{% endif %}" href="/files{{ active_scope.query_suffix }}">Memory Library</a>
+          <a class="{% if active_page == 'editor' %}active{% endif %}" href="/editor{{ active_scope.query_suffix }}">Fine Tune</a>
+          <a class="{% if active_page == 'export' %}active{% endif %}" href="/export{{ active_scope.query_suffix }}">Portable Context</a>
+          <a class="{% if active_page == 'everywhere' %}active{% endif %}" href="/everywhere{{ active_scope.query_suffix }}">Use Everywhere</a>
+        </nav>
+        <div class="sidebox">
+          <div class="badge blue">Active scope</div>
+          <p style="margin-top:10px"><strong>{{ active_scope.pill }}</strong></p>
+          <p class="small" style="margin-top:6px">{{ active_scope.label }}</p>
+          <p class="small" style="margin-top:6px">{{ active_scope.note }}</p>
+        </div>
+        <div class="sidebox">
+          <div class="badge gold">Positioning</div>
+          <p style="margin-top:10px">
+            8mem gives your AI a portable memory passport: visible, correctable,
+            and ready to travel across assistants.
+          </p>
+        </div>
+      </aside>
+      <main class="main">
+        <div class="topbar">
+          <div>
+            <span class="crumb">8mem</span>
+            <span class="topbar-title">{{ active_scope.pill }}</span>
+          </div>
+          <div class="topbar-actions">
+            <span class="status-pill"><span class="status-dot"></span>Local API ready</span>
+            <span class="status-pill accent">Telegram first</span>
+            <span class="status-pill">Portable context</span>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">Dark</button>
+          </div>
+        </div>
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+    <script>
+      (() => {
+        const root = document.body;
+        const button = document.querySelector("[data-theme-toggle]");
+        const saved = localStorage.getItem("eightmem-theme");
+        const setTheme = (theme) => {
+          root.dataset.theme = theme;
+          if (button) button.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+        };
+        setTheme(saved === "light" ? "light" : "dark");
+        button?.addEventListener("click", () => {
+          const next = root.dataset.theme === "dark" ? "light" : "dark";
+          localStorage.setItem("eightmem-theme", next);
+          setTheme(next);
+        });
+      })();
+    </script>
+  </body>
+</html>

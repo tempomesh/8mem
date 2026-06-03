@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="header">
+  <div>
+    <div class="kicker">Editing surface</div>
+    <h2 style="margin:8px 0 0">Fine tune memory</h2>
+    <div class="small">Active scope: <strong>{{ active_scope.label }}</strong></div>
+  </div>
+  <span class="badge green">You control what AI remembers</span>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>Memory sections</h3>
+    <div class="list">
+      {% for file in files %}
+      <div class="item">
+        <a class="{% if file.active %}active-link{% endif %}" href="/files/{{ file.slug }}{{ active_scope.query_suffix }}">{{ file.label }}</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>{{ label }}</h3>
+    <form method="post" action="/files/{{ slug }}{{ active_scope.query_suffix }}">
+      <textarea name="content" rows="28">{{ content }}</textarea>
+      <div class="actions">
+        <a class="btn" href="/files{{ active_scope.query_suffix }}">Back to memory library</a>
+        <button class="btn primary" type="submit">Save changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

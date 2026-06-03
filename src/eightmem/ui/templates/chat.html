@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="kicker">Memory Test Lab</div>
+  <h2>Ask a local model with your 8mem context attached.</h2>
+  <p>
+    This is a private local sandbox for checking whether your saved preferences and corrections
+    actually change the answer before you use them in Telegram or another assistant.
+  </p>
+  <div class="actions">
+    <a class="btn" href="/mirror{{ active_scope.query_suffix }}">See what AI knows</a>
+    <a class="btn" href="/files{{ active_scope.query_suffix }}">Review memory library</a>
+  </div>
+</section>
+
+<div class="grid cols-2">
+  <section class="card">
+    <div class="header">
+      <div>
+        <div class="kicker">Prompt</div>
+        <h3>Ask with memory</h3>
+      </div>
+      <span class="badge blue">Ollama</span>
+    </div>
+    <form method="post" action="/chat{{ active_scope.query_suffix }}">
+      <textarea class="chat-input" name="question" placeholder="Example: What do you know about how I like replies?">{{ question }}</textarea>
+      <div class="actions">
+        <button class="btn primary" type="submit">Ask with 8mem memory</button>
+      </div>
+    </form>
+    <p class="small" style="margin-top:14px">
+      Model: <strong>{{ model }}</strong><br />
+      Ollama URL: <strong>{{ base_url }}</strong>
+    </p>
+  </section>
+
+  <section class="card">
+    <div class="header">
+      <div>
+        <div class="kicker">Answer</div>
+        <h3>Memory-aware answer</h3>
+      </div>
+      <span class="badge green">Local</span>
+    </div>
+    {% if error %}
+      <div class="footer">
+        <strong>Chat is not ready yet.</strong><br />
+        {{ error }}
+      </div>
+      <p class="small" style="margin-top:14px">
+        If Ollama is not installed, install it later and rerun <strong>8mem setup</strong>.
+        Telegram memory still works without this local model test.
+      </p>
+    {% elif answer %}
+      <div class="preview">{{ answer }}</div>
+    {% else %}
+      <div class="preview">No answer yet. Ask a question to test memory-aware prompting.</div>
+    {% endif %}
+  </section>
+</div>
+
+<section class="card" style="margin-top:20px">
+  <div class="kicker">What this proves</div>
+  <h3>Your memory is portable beyond one chat surface</h3>
+  <p>
+    Telegram is the first launch channel. This local test proves the same memory can shape answers
+    wherever a model or agent chooses to read 8mem context.
+  </p>
+</section>
+{% endblock %}

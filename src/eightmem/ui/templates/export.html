@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="header">
+  <div>
+    <div class="kicker">Portable Context</div>
+    <h2 style="margin:8px 0 0">Take your AI memory with you</h2>
+    <div class="small">Active profile: <strong>{{ active_scope.label }}</strong></div>
+  </div>
+  <span class="badge blue">Use your memory everywhere</span>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>Use this context in</h3>
+    <div class="list">
+      <div class="item"><strong>ChatGPT</strong><span class="small">system prompt context</span></div>
+      <div class="item"><strong>Claude</strong><span class="small">markdown context block</span></div>
+      <div class="item"><strong>Local models</strong><span class="small">plain text memory context</span></div>
+      <div class="item"><strong>Agent runtimes</strong><span class="small">portable memory files</span></div>
+    </div>
+    <div class="actions">
+      <a class="btn primary" href="/export/download{{ active_scope.query_suffix }}">Download context file</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Prompt-ready context</h3>
+    <div class="preview">{{ compiled_context }}</div>
+  </div>
+</div>
+{% endblock %}

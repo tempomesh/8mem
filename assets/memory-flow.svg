@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title desc">
+  <title id="title">8mem memory flow</title>
+  <desc id="desc">A clean flow showing how a memory moves from chat to 8mem to future agent replies.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#edf4ff"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="8" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#7fa8ff"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="520" rx="36" fill="url(#bg)"/>
+  <text x="70" y="80" font-family="Verdana, sans-serif" font-size="42" font-weight="800" fill="#ffffff">A memory loop people can trust</text>
+  <text x="72" y="120" font-family="Verdana, sans-serif" font-size="20" fill="#c7d2fe">Save. Recall. Correct. Forget. Reuse across agents.</text>
+  <g font-family="Verdana, sans-serif">
+    <g transform="translate(80 190)">
+      <rect width="230" height="170" rx="28" fill="url(#card)"/>
+      <text x="32" y="48" font-size="18" font-weight="700" fill="#1e293b">1. Say it naturally</text>
+      <rect x="30" y="78" width="170" height="44" rx="22" fill="#eaf0ff"/>
+      <text x="48" y="106" font-size="15" fill="#1e293b">remember my tone</text>
+    </g>
+    <path d="M330 274 H430" stroke="#7fa8ff" stroke-width="5" marker-end="url(#arrow)"/>
+    <g transform="translate(450 190)">
+      <rect width="230" height="170" rx="28" fill="url(#card)"/>
+      <text x="32" y="48" font-size="18" font-weight="700" fill="#1e293b">2. 8mem stores it</text>
+      <rect x="32" y="78" width="166" height="16" rx="8" fill="#f0c86d"/>
+      <rect x="32" y="108" width="132" height="14" rx="7" fill="#7fa8ff"/>
+      <text x="32" y="144" font-size="14" fill="#475569">Readable + structured</text>
+    </g>
+    <path d="M700 274 H800" stroke="#7fa8ff" stroke-width="5" marker-end="url(#arrow)"/>
+    <g transform="translate(820 190)">
+      <rect width="230" height="170" rx="28" fill="url(#card)"/>
+      <text x="32" y="48" font-size="18" font-weight="700" fill="#1e293b">3. Agents reuse it</text>
+      <circle cx="70" cy="104" r="22" fill="#f0c86d"/>
+      <circle cx="126" cy="104" r="22" fill="#7fa8ff"/>
+      <circle cx="182" cy="104" r="22" fill="#93c5fd"/>
+      <text x="32" y="144" font-size="14" fill="#475569">Telegram + runtimes</text>
+    </g>
+    <path d="M1058 274 H1148" stroke="#7fa8ff" stroke-width="5" marker-end="url(#arrow)"/>
+    <g transform="translate(1080 374)">
+      <rect width="120" height="52" rx="26" fill="#f0c86d"/>
+      <text x="28" y="33" font-size="16" font-weight="700" fill="#111827">Recall</text>
+    </g>
+  </g>
+</svg>

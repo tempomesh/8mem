@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.coverage
+.DS_Store
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example

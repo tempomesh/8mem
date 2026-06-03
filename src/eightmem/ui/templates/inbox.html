@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="header">
+  <div>
+    <div class="kicker">Trust workflow</div>
+    <h2 style="margin:8px 0 0">Memory Inbox</h2>
+    <div class="small">Review possible memory and resolve contradictions before they shape agent behavior.</div>
+    <div class="small">Active scope: <strong>{{ active_scope.label }}</strong></div>
+  </div>
+  <span class="badge gold">Human-in-the-loop</span>
+</div>
+
+<div class="card">
+  <h3>Inbox status</h3>
+  <div class="small">Status: <strong>{{ health.label }}</strong></div>
+  {% if undo %}
+  <div style="margin-top:12px">
+    <form method="post" action="/memory/undo{{ active_scope.query_suffix }}">
+      <button class="btn" type="submit">{{ undo.label }}</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<div class="grid cols-1">
+  <div class="card">
+    <h3>Pending memory reviews</h3>
+    <div class="list">
+      {% for item in items %}
+      <div class="item">
+        <strong>{{ item.title }}</strong>
+        <div class="small" style="margin-top:6px">{{ item.reason }}</div>
+        <div class="small" style="margin-top:6px">{{ item.note }}</div>
+        <div class="actions">
+          {% if item.kind == 'proposal' %}
+          <form method="post" action="/inbox/resolve{% if request.query_params.get('user_id') %}?user_id={{ request.query_params.get('user_id') }}{% endif %}">
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="decision" value="save" />
+            <button class="btn primary" type="submit">Save to memory</button>
+          </form>
+          <form method="post" action="/inbox/resolve{% if request.query_params.get('user_id') %}?user_id={{ request.query_params.get('user_id') }}{% endif %}">
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="decision" value="skip" />
+            <button class="btn" type="submit">Skip</button>
+          </form>
+          {% endif %}
+          {% if item.id == 'emoji_guidance' %}
+          <form method="post" action="/inbox/resolve{% if request.query_params.get('user_id') %}?user_id={{ request.query_params.get('user_id') }}{% endif %}">
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="decision" value="keep_correction" />
+            <button class="btn primary" type="submit">Keep no emojis</button>
+          </form>
+          <form method="post" action="/inbox/resolve{% if request.query_params.get('user_id') %}?user_id={{ request.query_params.get('user_id') }}{% endif %}">
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="decision" value="keep_preference" />
+            <button class="btn" type="submit">Keep emojis</button>
+          </form>
+          {% endif %}
+          {% if item.id == 'detail_conflict' %}
+          <form method="post" action="/inbox/resolve{% if request.query_params.get('user_id') %}?user_id={{ request.query_params.get('user_id') }}{% endif %}">
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="decision" value="keep_concise" />
+            <button class="btn primary" type="submit">Keep concise</button>
+          </form>
+          <form method="post" action="/inbox/resolve{% if request.query_params.get('user_id') %}?user_id={{ request.query_params.get('user_id') }}{% endif %}">
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="decision" value="keep_detailed" />
+            <button class="btn" type="submit">Keep detailed</button>
+          </form>
+          {% endif %}
+          {% if item.id == 'format_conflict' %}
+          <form method="post" action="/inbox/resolve{% if request.query_params.get('user_id') %}?user_id={{ request.query_params.get('user_id') }}{% endif %}">
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="decision" value="keep_bullets" />
+            <button class="btn primary" type="submit">Keep bullets</button>
+          </form>
+          <form method="post" action="/inbox/resolve{% if request.query_params.get('user_id') %}?user_id={{ request.query_params.get('user_id') }}{% endif %}">
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="decision" value="keep_long_form" />
+            <button class="btn" type="submit">Keep long-form</button>
+          </form>
+          {% endif %}
+          {% if item.href %}
+          <a class="btn" href="{{ item.href }}">{{ item.action_label }}</a>
+          {% endif %}
+        </div>
+      </div>
+      {% else %}
+      <div class="item">
+        <strong>No pending memory reviews</strong>
+        <div class="small" style="margin-top:6px">No possible memory or contradiction item is waiting for action.</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

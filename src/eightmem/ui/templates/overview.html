@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="kicker">Memory layer for AI</div>
+  <h2>Correct AI once. Let 8mem remember it from then on.</h2>
+  <p>
+    8mem stores the preferences, corrections, and decisions you keep repeating to AI.
+    You can review what it remembers, fix contradictions, and carry that memory across
+    chats, models, and future tools.
+  </p>
+  <div class="actions">
+    <a class="btn primary" href="/chat{{ active_scope.query_suffix }}">Test chat now</a>
+    <a class="btn primary" href="/{{ active_scope.query_suffix }}">See live dashboard</a>
+    <a class="btn" href="/import{{ active_scope.query_suffix }}">Import conversations</a>
+  </div>
+</section>
+
+<div class="grid cols-3">
+  <div class="card">
+    <div class="badge gold">Step 1</div>
+    <h3>Teach 8mem</h3>
+    <p>Import past conversations or start saving preferences and corrections directly.</p>
+  </div>
+  <div class="card">
+    <div class="badge blue">Step 2</div>
+    <h3>Review memory</h3>
+    <p>See what AI believes about you, resolve contradictions, and keep memory clean.</p>
+  </div>
+  <div class="card">
+    <div class="badge green">Step 3</div>
+    <h3>Reuse anywhere</h3>
+    <p>Keep your AI behavior consistent across chats, models, and future assistants.</p>
+  </div>
+</div>
+{% endblock %}
