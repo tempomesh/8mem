@@ -1,79 +1,91 @@
 # 8mem
 
-![8mem hero banner](assets/hero.svg)
+<p align="center">
+  <img src="assets/logo.svg" alt="8mem logo" width="340">
+</p>
 
-**The memory your AI can finally keep.**
+<h3 align="center">The memory your AI can finally keep.</h3>
 
-8mem is a local-first memory layer for AI agents. It helps your assistant remember what matters, show what it knows, correct mistakes, forget stale facts, and reuse context across Telegram, OpenClaw, Hermes, and local apps.
+<p align="center">
+  A local-first memory layer for Telegram agents, OpenClaw, Hermes, and agentic apps.
+</p>
+
+<p align="center">
+  <a href="https://pypi.org/project/8mem/"><img alt="PyPI" src="https://img.shields.io/pypi/v/8mem?color=7fa8ff"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-f0c86d"></a>
+  <img alt="Local first" src="https://img.shields.io/badge/local--first-memory-1f2937">
+  <img alt="Telegram first" src="https://img.shields.io/badge/Telegram-first-2ca5e0">
+</p>
 
 ```bash
 pipx install 8mem
 ```
 
-If you do not use `pipx`:
+8mem gives AI agents a visible, correctable, portable memory that lives on your machine by default.
 
-```bash
-pip install 8mem
-```
+Most assistants can chat. Most agents can use tools. But they still forget the user, repeat old mistakes, and hide stale assumptions in conversation history.
+
+8mem adds the missing layer: memory you can see, correct, forget, export, and reuse across runtimes.
 
 Created by Ashish Verma, founder of [8mem.com](https://8mem.com).
 
-8mem source code is licensed under the Apache License, Version 2.0. The 8mem name, logo, and brand assets are brand identifiers of Ashish Verma / 8mem; the license does not grant permission to misrepresent ownership, impersonate 8mem, or use the 8mem brand in a misleading way.
+## See It Working In Telegram
 
-## Why 8mem exists
+![8mem Telegram memory demo](assets/telegram-demo.gif)
 
-AI is powerful, but most AI still starts from scratch.
-
-You repeat the same context, style, preferences, corrections, names, project facts, and rules across tools. 8mem gives that context a visible, correctable, local-first home.
-
-## What it gives you
-
-| Capability | Common-man meaning |
-|---|---|
-| Visible memory | You can see what the AI remembers. |
-| Correctable memory | You can fix wrong or outdated facts. |
-| Forget flow | You can remove facts with confirmation and audit trail. |
-| Portable context | The same memory can be reused across runtimes. |
-| Local-first storage | Memory stays on your machine by default. |
-| Agent adapters | Works with Telegram-first flows and can connect into OpenClaw/Hermes-style runtimes. |
-
-## The trust loop
-
-![8mem memory flow](assets/memory-flow.svg)
+8mem is designed around natural commands:
 
 ```text
-You:   remember my launch replies should be concise
-8mem:  Saved.
-
-You:   what do you know about my launch replies?
-8mem:  Your launch replies should be concise.
-
-You:   forget my launch replies should be concise
-8mem:  Forgotten.
+remember I prefer short direct replies
+what do you remember about me?
+forget I prefer short direct replies
+what changed about me?
 ```
 
-## Dashboard demo
+The point is simple: your AI should not need the same context again and again.
+
+## What 8mem Gives You
+
+| Capability | What it means |
+|---|---|
+| Visible memory | See what the AI believes about you. |
+| Correctable memory | Fix wrong assumptions before they spread. |
+| Forget flow | Delete stale facts with confirmation and audit trail. |
+| Portable context | Reuse the same memory across agents and apps. |
+| Local-first storage | Keep memory on your machine by default. |
+| Runtime adapters | Connect memory into Telegram, OpenClaw, Hermes, and local apps. |
+
+## The Trust Loop
+
+![8mem trust demo](assets/trust-demo.gif)
+
+8mem is not just "save notes for the AI." It is a trust loop:
+
+```text
+Save a fact
+  -> use it in context
+  -> show what was used
+  -> correct or forget it
+  -> refresh the agent
+```
+
+That loop matters because memory without correction becomes silent drift.
+
+## Memory Passport
+
+![8mem passport demo](assets/passport-demo.gif)
+
+The memory passport shows the context the agent is using: preferences, corrections, identity, decisions, and memory health.
+
+It turns hidden personalization into something the user can inspect.
+
+## Dashboard
 
 ![8mem dashboard flow](assets/dashboard-flow.gif)
 
-The dashboard makes memory visible: what is saved, what is being used, what changed, and what was corrected or forgotten.
+The local dashboard makes memory visible: saved facts, corrections, memory state, trust controls, and exportable context.
 
-## Quickstart
-
-Install:
-
-```bash
-pipx install 8mem
-```
-
-Set up local runtime:
-
-```bash
-8mem setup --llm-model qwen2.5:14b
-8mem doctor
-```
-
-Start the local UI/API:
+Start it locally:
 
 ```bash
 8mem start
@@ -85,40 +97,66 @@ Open:
 http://127.0.0.1:8787
 ```
 
+## Quickstart
+
+Install:
+
+```bash
+pipx install 8mem
+```
+
+If you do not use `pipx`:
+
+```bash
+pip install 8mem
+```
+
+Set up local runtime:
+
+```bash
+8mem setup --llm-model qwen2.5:14b
+8mem doctor
+```
+
+Start local UI/API:
+
+```bash
+8mem start
+```
+
 Stop:
 
 ```bash
 8mem stop
 ```
 
-## Optional semantic retrieval
+## Architecture
 
-8mem does not require vector search. Its core truth path is readable and local:
+![8mem memory flow](assets/memory-flow.svg)
+
+```text
+User
+  -> Telegram or local UI
+  -> 8mem API
+  -> memory service
+  -> Markdown + JSONL + SQLite
+  -> context export
+  -> AI runtime
+```
+
+The core truth path is readable and local:
 
 - Markdown memory files
 - JSONL event history
 - SQLite structured facts
 
-For larger memory sets, install the optional semantic helper:
+Optional semantic retrieval is available for larger memory sets:
 
 ```bash
 pip install "8mem[semantic]"
 ```
 
-## Telegram-first memory
-
-8mem is designed around simple language:
-
-```text
-remember I prefer short direct replies
-what do you remember about me?
-forget I prefer short direct replies
-what changed about me?
-```
-
-Telegram setup needs your own BotFather token and a public HTTPS webhook URL if you want live Telegram delivery. Local UI/API usage works without a cloud API key.
-
-## Runtime integrations
+## Runtime Integrations
 
 8mem integrates with agent runtimes by exporting current memory as context and by handling explicit memory writes.
 
@@ -131,7 +169,7 @@ Telegram setup needs your own BotFather token and a public HTTPS webhook URL if 
 
 8mem does not bundle OpenClaw or Hermes.
 
-## Generated runtime files
+## Generated Runtime Files
 
 8mem does not ship your runtime `AGENTS.md`, `SOUL.md`, `HEARTBEAT.md`, `MEMORY-API.md`, or machine-specific hook files.
 
@@ -142,21 +180,11 @@ Those files are generated locally during setup:
 8mem setup --mode hermes
 ```
 
-This keeps the public repo clean and prevents private agent files, local paths, webhook secrets, or machine-specific integration state from being committed. The setup command writes only the integration block needed for that local runtime, including memory context injection, explicit remember/correct/forget handling, and webhook/callback wiring where the runtime supports it.
+This keeps the public repo clean and prevents private agent files, local paths, webhook secrets, or machine-specific integration state from being committed.
 
-## Architecture
+The setup command writes only the integration block needed for that local runtime, including memory context injection, explicit remember/correct/forget handling, and webhook/callback wiring where the runtime supports it.
 
-```text
-User
-  -> Telegram or local UI
-  -> 8mem API
-  -> memory service
-  -> Markdown + JSONL + SQLite
-  -> context export
-  -> AI runtime
-```
-
-## Package contents
+## Package Contents
 
 The public package includes:
 
@@ -169,7 +197,7 @@ The public package includes:
 
 It does not include private runtime data, user memory, API keys, bot tokens, local machine paths, or internal launch documents.
 
-## Privacy model
+## Privacy Model
 
 8mem is local-first.
 
@@ -184,6 +212,8 @@ pipx install 8mem
 8mem --help
 ```
 
-## License
+## License And Brand
 
-Apache License, Version 2.0. See `LICENSE` and `NOTICE`.
+8mem source code is licensed under the Apache License, Version 2.0. See `LICENSE` and `NOTICE`.
+
+The 8mem name, logo, and brand assets are brand identifiers of Ashish Verma / 8mem. The license does not grant permission to misrepresent ownership, impersonate 8mem, or use the 8mem brand in a misleading way.

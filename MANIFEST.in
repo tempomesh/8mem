@@ -2,5 +2,6 @@ recursive-include src/eightmem/resources/memory_templates *.md
 recursive-include src/eightmem/resources/integrations *
 recursive-include src/eightmem/ui/templates *.html
 recursive-include src/eightmem/ui/static *.css *.svg
+recursive-include assets *.svg *.gif
 prune tests
 global-exclude .DS_Store
