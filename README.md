@@ -4,86 +4,70 @@
   <img src="assets/logo.svg" alt="8mem logo" width="340">
 </p>
 
-<h3 align="center">The memory your AI can finally keep.</h3>
+<h2 align="center">Agent memory your AI can finally keep.</h2>
 
 <p align="center">
-  A local-first memory layer for Telegram agents, OpenClaw, Hermes, and agentic apps.
+  <strong>Visible. Correctable. Portable. Shared.</strong>
+</p>
+
+<p align="center">
+  8mem is a local-first memory layer for AI agents, agent runtimes, and developer tools.
 </p>
 
 <p align="center">
   <a href="https://pypi.org/project/8mem/"><img alt="PyPI" src="https://img.shields.io/pypi/v/8mem?color=7fa8ff"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-f0c86d"></a>
   <img alt="Local first" src="https://img.shields.io/badge/local--first-memory-1f2937">
-  <img alt="Telegram first" src="https://img.shields.io/badge/Telegram-first-2ca5e0">
+  <img alt="Agent memory" src="https://img.shields.io/badge/agent-memory-2ca5e0">
 </p>
 
 ```bash
 pipx install 8mem
 ```
 
-8mem gives AI agents a visible, correctable, portable memory that lives on your machine by default.
+AI agents can use tools, write code, browse the web, and run workflows. But across sessions and runtimes, they still forget the user, repeat stale assumptions, and hide memory inside chat history.
 
-Most assistants can chat. Most agents can use tools. But they still forget the user, repeat old mistakes, and hide stale assumptions in conversation history.
-
-8mem adds the missing layer: memory you can see, correct, forget, export, and reuse across runtimes.
+8mem gives agents a memory layer the user can actually inspect, correct, forget, and reuse.
 
 Created by Ashish Verma, founder of [8mem.com](https://8mem.com).
 
-## See It Working In Telegram
+## Real-Time Cross-Agent Memory
 
-![8mem Telegram memory demo](assets/telegram-demo.gif)
+![8mem real-time cross-agent memory](assets/8mem-cross-agent-memory.gif)
 
-8mem is designed around natural commands:
+Viri is an OpenClaw agent. Govi is a Hermes agent.
 
-```text
-remember I prefer short direct replies
-what do you remember about me?
-forget I prefer short direct replies
-what changed about me?
-```
+8mem gives both agents the same portable memory. Save once, reuse across runtimes.
 
-The point is simple: your AI should not need the same context again and again.
+## Correct Once. Update Everywhere.
 
-## What 8mem Gives You
+![8mem correction and refresh](assets/8mem-refresh.gif)
 
-| Capability | What it means |
-|---|---|
-| Visible memory | See what the AI believes about you. |
-| Correctable memory | Fix wrong assumptions before they spread. |
-| Forget flow | Delete stale facts with confirmation and audit trail. |
-| Portable context | Reuse the same memory across agents and apps. |
-| Local-first storage | Keep memory on your machine by default. |
-| Runtime adapters | Connect memory into Telegram, OpenClaw, Hermes, and local apps. |
+Memory should not drift silently.
 
-## The Trust Loop
+8mem lets the user correct a memory, refresh the agent context, and make the updated fact available to other agents.
 
-![8mem trust demo](assets/trust-demo.gif)
+## Compare Generic Vs Memory-Aware Answers
 
-8mem is not just "save notes for the AI." It is a trust loop:
+![8mem compare](assets/8mem-compare.gif)
 
-```text
-Save a fact
-  -> use it in context
-  -> show what was used
-  -> correct or forget it
-  -> refresh the agent
-```
+The same prompt can produce a generic answer or a memory-shaped answer.
 
-That loop matters because memory without correction becomes silent drift.
+8mem Compare makes that difference visible.
 
-## Memory Passport
+## Forget Means Forget
 
-![8mem passport demo](assets/passport-demo.gif)
+![8mem forget](assets/8mem-forget.gif)
 
-The memory passport shows the context the agent is using: preferences, corrections, identity, decisions, and memory health.
+Agent memory needs a real delete path.
 
-It turns hidden personalization into something the user can inspect.
+When a fact is forgotten in 8mem, other agents stop using it.
 
-## Dashboard
+## Local Memory Dashboard
 
-![8mem dashboard flow](assets/dashboard-flow.gif)
+![8mem dashboard](assets/8mem-dashboard.gif)
 
-The local dashboard makes memory visible: saved facts, corrections, memory state, trust controls, and exportable context.
+8mem includes a local dashboard for memory visibility, review, correction, and portability.
 
 Start it locally:
 
@@ -96,6 +80,17 @@ Open:
 ```text
 http://127.0.0.1:8787
 ```
+
+## What 8mem Gives You
+
+| Capability | What it means |
+|---|---|
+| Visible memory | See what the AI believes and uses. |
+| Correctable memory | Fix wrong assumptions before they spread. |
+| Forget flow | Remove stale facts with confirmation and audit trail. |
+| Portable context | Reuse memory across agents, tools, and local apps. |
+| Local-first storage | Keep memory on your machine by default. |
+| Runtime adapters | Connect memory into Telegram, OpenClaw, Hermes, and local workflows. |
 
 ## Quickstart
 
@@ -128,6 +123,17 @@ Stop:
 
 ```bash
 8mem stop
+```
+
+## Telegram-First Commands
+
+8mem is designed around simple memory language:
+
+```text
+remember I prefer short direct replies
+what do you remember about me?
+correct my update style to short and risk-aware
+forget my old launch room
 ```
 
 ## Architecture
