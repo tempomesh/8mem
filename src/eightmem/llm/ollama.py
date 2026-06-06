@@ -9,7 +9,7 @@ from urllib.request import Request, urlopen
 
 
 DEFAULT_BASE_URL = "http://localhost:11434"
-DEFAULT_MODEL = "llama3.2:latest"
+DEFAULT_MODEL = "qwen3:1.7b"
 
 
 class OllamaError(RuntimeError):

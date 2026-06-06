@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "8mem"
-version = "0.1.7"
-description = "8mem: local-first memory layer for AI chats"
+version = "0.1.8"
+description = "Agent memory your AI can finally keep. Visible. Correctable. Portable. Shared."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Ashish Verma" }]

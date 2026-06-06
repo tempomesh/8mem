@@ -1,4 +1,4 @@
-"""8mem: local-first memory layer for AI chats."""
+"""8mem: agent memory your AI can finally keep."""
 
 __all__ = ["__version__"]
-__version__ = "0.1.7"
+__version__ = "0.1.8"

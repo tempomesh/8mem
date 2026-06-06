@@ -4556,7 +4556,7 @@ def _prompt_model_name(default_model: str, max_attempts: int = 2) -> str:
         if normalized:
             return normalized
         remaining = max_attempts - attempt - 1
-        message = "Model must look like llama3.2:latest or qwen2.5:14b. Press Enter to use the default."
+        message = "Model must look like qwen3:1.7b or qwen2.5:14b. Press Enter to use the default."
         if remaining:
             typer.secho(message, fg=typer.colors.YELLOW)
         else:
@@ -5286,7 +5286,8 @@ def doctor(
         if ok:
             checks.append(_doctor_check("llm_backend", "pass", f"Ollama reachable at {resolve_base_url()}"))
         else:
-            checks.append(_doctor_check("llm_backend", "warn", f"{error or 'Ollama backend unavailable'}. Fix: start Ollama and run `ollama pull qwen2.5:14b`, or update OLLAMA_BASE_URL."))
+            model_hint = resolve_default_model()
+            checks.append(_doctor_check("llm_backend", "warn", f"{error or 'Ollama backend unavailable'}. Fix: start Ollama and run `ollama pull {model_hint}`, or update OLLAMA_BASE_URL/DEFAULT_LLM_FALLBACK_MODEL."))
 
     try:
         context = build_engram_context()

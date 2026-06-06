@@ -29,6 +29,8 @@ AI agents can use tools, write code, browse the web, and run workflows. But acro
 
 8mem gives agents a memory layer the user can actually inspect, correct, forget, and reuse.
 
+It works as a standalone browser product first. Telegram, OpenClaw, and Hermes can be added when those runtimes are ready on the user's machine.
+
 Created by Ashish Verma, founder of [8mem.com](https://8mem.com).
 
 ## Real-Time Cross-Agent Memory
@@ -117,7 +119,7 @@ pip install 8mem
 Set up local runtime:
 
 ```bash
-8mem setup --llm-model qwen2.5:14b
+8mem setup --llm-model qwen3:1.7b
 8mem doctor
 ```
 
@@ -161,6 +163,8 @@ If you connected OpenClaw, remove only the 8mem-managed OpenClaw integration:
 This does not uninstall OpenClaw itself.
 
 ## Telegram-First Commands
+
+These commands work in Telegram after BotFather token + public HTTPS webhook setup. The same memory can also be saved and inspected from the browser UI.
 
 8mem is designed around simple memory language:
 
@@ -207,6 +211,7 @@ pip install "8mem[semantic]"
 | OpenClaw | 8mem provides adapter/template code; OpenClaw is separate and not bundled. |
 | Hermes | 8mem provides adapter/template code; Hermes is separate and not bundled. |
 | Local apps | Use the local API and context export path. |
+| ChatGPT / Claude | Use exported portable context; they are not bundled inside 8mem. |
 
 8mem does not bundle OpenClaw or Hermes.
 
@@ -247,7 +252,7 @@ Runtime config is written under `~/.8mem`. User memory is stored on the user's m
 
 ## Status
 
-8mem `0.1.7` is the current public PyPI release.
+8mem `0.1.8` is the current prepared public release.
 
 ```bash
 pipx install 8mem

@@ -168,7 +168,7 @@ def render_passport_card(content: PassportCardContent, path: Path) -> Path:
     footer_y = CARD_HEIGHT - 74
     draw.line((72, CARD_HEIGHT - 92, CARD_WIDTH - 72, CARD_HEIGHT - 92), fill="#d8cdb9", width=2)
     draw.text((72, footer_y), "8mem.com", fill="#111111", font=font_footer)
-    tagline = "Portable memory for AI"
+    tagline = "Visible. Correctable. Portable. Shared."
     tagline_width = draw.textbbox((0, 0), tagline, font=font_small)[2]
     draw.text((CARD_WIDTH - 72 - tagline_width, footer_y + 2), tagline, fill="#555044", font=font_small)
     image.save(path, format="PNG", optimize=True)
