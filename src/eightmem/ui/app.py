@@ -4,10 +4,12 @@ import json
 import logging
 import os
 import hashlib
+import importlib.resources as importlib_resources
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 from fastapi import FastAPI, File, Form, Header, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response
@@ -805,9 +807,47 @@ def create_app() -> FastAPI:
         return RedirectResponse(url="/", status_code=303)
 
     @app.get("/", response_class=HTMLResponse)
-    def dashboard(request: Request, user_id: str | None = Query(default=None)) -> HTMLResponse:
+    def dashboard(
+        request: Request,
+        status: str | None = Query(default=None),
+        user_id: str | None = Query(default=None),
+    ) -> HTMLResponse:
         context = load_dashboard_payload(user_id=user_id)
+        context["status"] = status
         return templates.TemplateResponse(request, "dashboard.html", context)
+
+    @app.post("/memory/remember")
+    def browser_memory_remember(
+        value: str = Form(default=""),
+        user_id: str | None = Query(default=None),
+    ) -> RedirectResponse:
+        cleaned = " ".join(value.strip().split())
+        if not cleaned:
+            return _redirect_dashboard_status("remember-empty", user_id=user_id)
+
+        payload = {"value": cleaned, "category": infer_memory_category(cleaned)}
+        file_name = _runtime_memory_file(payload) or "BELIEFS.md"
+        normalized = _normalize_runtime_memory_value(file_name, cleaned)
+        try:
+            result = write_canonical_memory(
+                user_id=user_id,
+                file_name=file_name,
+                value=normalized,
+                source="browser",
+            )
+        except Exception as exc:  # pragma: no cover - defensive UI guard
+            logger.warning("browser memory write failed: %s", exc)
+            return _redirect_dashboard_status("remember-error", user_id=user_id)
+
+        result_status = result.get("status")
+        if result_status == "written":
+            _notify_connectors_safely("memory.created", user_id=user_id)
+            return _redirect_dashboard_status("remembered", user_id=user_id)
+        if result_status == "duplicate":
+            return _redirect_dashboard_status("remember-duplicate", user_id=user_id)
+        if result_status in {"refinement_pending", "conflict"}:
+            return _redirect_dashboard_status("remember-review", user_id=user_id)
+        return _redirect_dashboard_status("remember-error", user_id=user_id)
 
     @app.get("/import", response_class=HTMLResponse)
     def import_page(
@@ -821,10 +861,14 @@ def create_app() -> FastAPI:
     @app.post("/import-sample")
     def import_sample() -> RedirectResponse:
         mem = initialize_memory_runtime()
-        sample = Path(__file__).resolve().parents[3] / "examples" / "chat_export_sample.json"
-        if sample.exists():
-            analyze_chat_export(sample, mem)
-            return RedirectResponse(url="/import?status=sample-loaded", status_code=303)
+        sample_ref = importlib_resources.files("eightmem.resources").joinpath("sample_data/chat_export_sample.json")
+        try:
+            with importlib_resources.as_file(sample_ref) as sample:
+                if sample.exists():
+                    analyze_chat_export(sample, mem)
+                    return RedirectResponse(url="/import?status=sample-loaded", status_code=303)
+        except FileNotFoundError:
+            pass
         return RedirectResponse(url="/import?status=sample-missing", status_code=303)
 
     @app.get("/mirror", response_class=HTMLResponse)
@@ -1190,6 +1234,13 @@ def _notify_connectors_safely(event: str, *, user_id: str | None = None) -> int:
     except Exception as exc:  # pragma: no cover - defensive launch safety guard
         logger.warning("8mem connector webhook push failed: %s", exc)
         return 0
+
+
+def _redirect_dashboard_status(status: str, *, user_id: str | None = None) -> RedirectResponse:
+    query: dict[str, str] = {"status": status}
+    if user_id:
+        query["user_id"] = user_id
+    return RedirectResponse(url=f"/?{urlencode(query)}", status_code=303)
 
 
 def _resolve_runtime_user_id(

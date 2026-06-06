@@ -2,12 +2,13 @@
 {% block content %}
 <section class="hero">
   <div class="kicker">Memory Test Lab</div>
-  <h2>Ask a local model with your 8mem context attached.</h2>
+  <h2>Ask a local model using saved 8mem memory.</h2>
   <p>
-    This is a private local sandbox for checking whether your saved preferences and corrections
-    actually change the answer before you use them in Telegram or another assistant.
+    This page does not save new memory. Save facts and preferences from Start Here first, then use this
+    private local sandbox to check whether memory changes the answer.
   </p>
   <div class="actions">
+    <a class="btn primary" href="/{{ active_scope.query_suffix }}">Teach 8mem first</a>
     <a class="btn" href="/mirror{{ active_scope.query_suffix }}">See what AI knows</a>
     <a class="btn" href="/files{{ active_scope.query_suffix }}">Review memory library</a>
   </div>
@@ -25,10 +26,11 @@
     <form method="post" action="/chat{{ active_scope.query_suffix }}">
       <textarea class="chat-input" name="question" placeholder="Example: What do you know about how I like replies?">{{ question }}</textarea>
       <div class="actions">
-        <button class="btn primary" type="submit">Ask with 8mem memory</button>
+        <button class="btn primary" type="submit">Ask with saved memory</button>
       </div>
     </form>
     <p class="small" style="margin-top:14px">
+      To save a new fact, go to <strong>Start Here</strong> and use <strong>Remember this</strong>.<br />
       Model: <strong>{{ model }}</strong><br />
       Ollama URL: <strong>{{ base_url }}</strong>
     </p>

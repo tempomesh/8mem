@@ -22,7 +22,7 @@
 </p>
 
 ```bash
-pipx install 8mem
+curl -fsSL https://8mem.com/install.sh | bash
 ```
 
 AI agents can use tools, write code, browse the web, and run workflows. But across sessions and runtimes, they still forget the user, repeat stale assumptions, and hide memory inside chat history.
@@ -94,7 +94,15 @@ http://127.0.0.1:8787
 
 ## Quickstart
 
-Install:
+Recommended one-line install:
+
+```bash
+curl -fsSL https://8mem.com/install.sh | bash
+```
+
+This downloads the pinned public wheel from `8mem.com`, verifies its SHA256 checksum, installs 8mem locally, runs guided setup, and then runs `8mem doctor`.
+
+If you already use `pipx`, install from PyPI:
 
 ```bash
 pipx install 8mem
@@ -124,6 +132,33 @@ Stop:
 ```bash
 8mem stop
 ```
+
+Uninstall the package:
+
+```bash
+8mem stop
+pipx uninstall 8mem
+```
+
+If you installed with plain pip instead of pipx:
+
+```bash
+pip uninstall 8mem
+```
+
+8mem keeps `~/.8mem` by default so local memory is not deleted accidentally. To permanently delete local 8mem memory and runtime config:
+
+```bash
+rm -rf ~/.8mem
+```
+
+If you connected OpenClaw, remove only the 8mem-managed OpenClaw integration:
+
+```bash
+8mem uninstall --mode openclaw
+```
+
+This does not uninstall OpenClaw itself.
 
 ## Telegram-First Commands
 
@@ -197,6 +232,7 @@ The public package includes:
 - `src/eightmem/` product code
 - UI templates and static assets
 - memory templates
+- sample data for first-run browser testing
 - OpenClaw/Hermes adapter resources
 - Apache-2.0 `LICENSE`
 - founder/brand `NOTICE`
@@ -211,7 +247,7 @@ Runtime config is written under `~/.8mem`. User memory is stored on the user's m
 
 ## Status
 
-8mem `0.1.5` is the first public PyPI release.
+8mem `0.1.7` is the current public PyPI release.
 
 ```bash
 pipx install 8mem

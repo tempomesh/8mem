@@ -1,0 +1,26 @@
+[
+  {
+    "role": "user",
+    "content": "I am a founder building a local-first product."
+  },
+  {
+    "role": "assistant",
+    "content": "What response style should I use?"
+  },
+  {
+    "role": "user",
+    "content": "Please keep answers concise and practical."
+  },
+  {
+    "role": "user",
+    "content": "Do not use emojis in professional responses."
+  },
+  {
+    "role": "user",
+    "content": "We decided to launch the CLI first because onboarding speed matters."
+  },
+  {
+    "role": "user",
+    "content": "Recently I moved to weekly release reviews."
+  }
+]

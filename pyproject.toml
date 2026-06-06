@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "8mem"
-version = "0.1.5"
+version = "0.1.7"
 description = "8mem: local-first memory layer for AI chats"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -48,7 +48,11 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-eightmem = ["resources/integrations/openclaw/*.ts", "resources/integrations/openclaw/*.js"]
+eightmem = [
+  "resources/integrations/openclaw/*.ts",
+  "resources/integrations/openclaw/*.js",
+  "resources/sample_data/*.json",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -273,11 +273,11 @@ def _prompt_optional(label: str, *, hide_input: bool = False) -> str:
 
 def _prompt_setup_mode(max_attempts: int = 2) -> str:
     typer.echo("How do you want to use 8mem first?")
-    typer.echo("1. Browser UI only (recommended first)")
-    typer.echo("2. Telegram bot")
+    typer.echo("1. Browser UI only (save and inspect memory; recommended first)")
+    typer.echo("2. Telegram bot (needs BotFather token + public HTTPS URL)")
     typer.echo("3. Both browser UI and Telegram")
-    typer.echo("4. OpenClaw agent integration")
-    typer.echo("5. Hermes agent integration")
+    typer.echo("4. OpenClaw agent integration (if OpenClaw is already installed)")
+    typer.echo("5. Hermes agent integration (if Hermes is already installed)")
     typer.echo("6. Skip optional setup")
     for attempt in range(max_attempts):
         choice = _prompt_optional("Choose [1]")
@@ -301,6 +301,15 @@ def _prompt_setup_mode(max_attempts: int = 2) -> str:
             typer.secho("Using Browser UI only because the setup choice was not valid.", fg=typer.colors.YELLOW)
             return "browser"
     return "browser"
+
+
+def _print_telegram_setup_prereqs() -> None:
+    typer.echo("")
+    typer.echo("Telegram setup checklist:")
+    typer.echo("1. Create a bot in Telegram with BotFather and paste the bot token here.")
+    typer.echo("2. Start a public HTTPS tunnel to this machine, for example ngrok, Tailscale Funnel, Cloudflare Tunnel, or your own HTTPS domain.")
+    typer.echo("3. Keep 8mem running with `8mem start` so Telegram can reach it.")
+    typer.echo("If you only have the bot token now, you can skip the public URL. Browser memory will work, but Telegram will not reply until the webhook is added.")
 
 
 def _prompt_agent_host() -> str:
@@ -4765,11 +4774,13 @@ def setup(
         wants_telegram = setup_mode in {"telegram", "both"} and not skip_telegram
         if setup_mode == "browser":
             skip_telegram = True
-            typer.echo("Browser UI selected. Telegram can be added later with `8mem setup`.")
+            typer.echo("Browser UI selected. You can save memory locally now. Telegram can be added later with `8mem setup --mode telegram`.")
         elif setup_mode == "telegram":
-            typer.echo("Telegram selected. Required: BotFather token. Optional now: public HTTPS URL for webhook.")
+            typer.echo("Telegram selected.")
+            _print_telegram_setup_prereqs()
         elif setup_mode == "both":
-            typer.echo("Browser UI + Telegram selected. Required for Telegram: BotFather token.")
+            typer.echo("Browser UI + Telegram selected.")
+            _print_telegram_setup_prereqs()
         elif setup_mode == "both_agents":
             skip_telegram = True
             skip_llm_check = True
@@ -4921,7 +4932,11 @@ def setup(
             if show_status:
                 typer.secho(f"Telegram webhook: warning - {exc}", fg=typer.colors.YELLOW)
     elif telegram_token and not telegram_forward_url and show_status:
-        typer.echo("Telegram token saved. Webhook registration skipped because no public URL was provided.")
+        typer.secho(
+            "Telegram token saved, but Telegram is not active yet because no public HTTPS URL was provided.",
+            fg=typer.colors.YELLOW,
+        )
+        typer.echo("Browser/local memory works now. Add the Telegram webhook later with: 8mem setup --mode telegram")
 
     if show_status:
         if skip_llm_check:
@@ -4935,18 +4950,39 @@ def setup(
 
     if show_next_steps:
         typer.echo("")
-        typer.echo("Next:")
+        typer.echo("What to do next:")
         typer.echo("1. Run: 8mem doctor")
         typer.echo("2. Run: 8mem start")
-        typer.echo("3. Open browser UI: http://127.0.0.1:8787/chat")
+        typer.echo("3. Open browser UI: http://127.0.0.1:8787/")
+        typer.echo("4. Save your first memory from Start Here -> Remember this")
+        typer.echo("")
+        typer.echo("What works now:")
+        typer.echo("- Browser dashboard, memory save, memory mirror, import, and local memory test")
         if skip_telegram:
-            typer.echo("Add Telegram later: 8mem setup --mode telegram")
-        typer.echo(f"Local API key lookup: grep '^EIGHTMEM_LOCAL_API_KEY=' {config_path}")
+            typer.echo("- Telegram is not configured yet. Add it later with: 8mem setup --mode telegram")
         if telegram_token:
             if telegram_forward_url:
-                typer.echo("4. Start 8mem, then send a Telegram message to your bot.")
+                typer.echo("- Telegram webhook is configured. Start 8mem, then send a message to your bot.")
             else:
-                typer.echo("4. When your public URL is ready, rerun: 8mem setup --mode telegram")
+                typer.echo("- Telegram token is saved, but Telegram will not reply until you add a public HTTPS URL.")
+                typer.echo("  When your ngrok/Tailscale/Cloudflare URL is ready, rerun: 8mem setup --mode telegram")
+        typer.echo("")
+        typer.echo("Agent runtimes:")
+        openclaw_detected_now = _standard_openclaw_config_exists()
+        hermes_detected_now = _standard_hermes_config_exists()
+        if setup_mode in {"openclaw", "hermes", "both_agents"}:
+            typer.echo("- Agent wiring selected. See setup receipt below.")
+        else:
+            if openclaw_detected_now:
+                typer.echo("- OpenClaw detected. To connect it later, run: 8mem setup --mode openclaw")
+            else:
+                typer.echo("- OpenClaw not detected. If you install OpenClaw later, run: 8mem setup --mode openclaw")
+            if hermes_detected_now:
+                typer.echo("- Hermes detected. To connect it later, run: 8mem setup --mode hermes")
+            else:
+                typer.echo("- Hermes not detected. If you install Hermes later, run: 8mem setup --mode hermes")
+        typer.echo("")
+        typer.echo(f"Advanced: local API key is stored in {config_path}")
     if setup_mode in {"openclaw", "both_agents"}:
         api_url = normalized_openclaw_api_url or "http://127.0.0.1:8787"
         key_env_var = _openclaw_key_env_var_for_api_url(api_url, normalized_openclaw_api_key)

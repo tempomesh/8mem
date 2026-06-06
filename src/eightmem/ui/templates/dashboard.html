@@ -3,11 +3,24 @@
 <div class="header">
   <div>
     <div class="kicker">Memory Passport</div>
-    <h2 style="margin:8px 0 0">The memory your AI can finally keep.</h2>
+    <h2 style="margin:8px 0 0">Agent memory your AI can finally keep.</h2>
+    <div class="small">Visible. Correctable. Portable. Shared.</div>
     <div class="small">Active profile: <strong>{{ active_scope.label }}</strong></div>
   </div>
   <span class="badge green">Portable memory ready</span>
 </div>
+
+{% if status == "remembered" %}
+<div class="footer">Saved. 8mem can now use this memory in browser, Telegram, and connected agents.</div>
+{% elif status == "remember-duplicate" %}
+<div class="footer">Already in memory.</div>
+{% elif status == "remember-review" %}
+<div class="footer">This looks like a correction or conflict. Use Fine Tune or Forget to review it before saving.</div>
+{% elif status == "remember-empty" %}
+<div class="footer">Type one memory first, then click Remember this.</div>
+{% elif status == "remember-error" %}
+<div class="footer">Could not save memory. Try again or check 8mem doctor.</div>
+{% endif %}
 
 <div class="grid cols-3">
   <div class="card stat-card">
@@ -24,6 +37,29 @@
     <div class="small">Corrections</div>
     <div class="metric">{{ counts.corrections }}</div>
     <div class="small">mistakes 8mem should not repeat</div>
+  </div>
+</div>
+
+<div class="grid cols-1">
+  <div class="card">
+    <div class="header">
+      <div>
+        <div class="kicker">First memory</div>
+        <h3>Teach 8mem something to remember</h3>
+      </div>
+      <span class="badge gold">Browser works without Telegram</span>
+    </div>
+    <p class="small">
+      Use this box to save memory. The Memory Test page only asks questions using memory that already exists.
+    </p>
+    <form method="post" action="/memory/remember{{ active_scope.query_suffix }}">
+      <textarea class="chat-input" name="value" placeholder="Example: I prefer short, direct replies with no emojis."></textarea>
+      <div class="actions">
+        <button class="btn primary" type="submit">Remember this</button>
+        <a class="btn" href="/chat{{ active_scope.query_suffix }}">Ask with saved memory</a>
+        <a class="btn" href="/import{{ active_scope.query_suffix }}">Use sample data</a>
+      </div>
+    </form>
   </div>
 </div>
 
