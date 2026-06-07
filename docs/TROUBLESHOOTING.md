@@ -58,13 +58,13 @@ ollama list
 Pull a small model:
 
 ```bash
-ollama pull qwen3:1.7b
+ollama pull <model-name>
 ```
 
 Configure 8mem:
 
 ```bash
-8mem setup --llm-model qwen3:1.7b
+8mem setup --llm-model <your-installed-ollama-model>
 8mem doctor
 8mem start
 ```
@@ -72,7 +72,7 @@ Configure 8mem:
 If you prefer another model:
 
 ```bash
-8mem setup --llm-model llama3.2:latest
+8mem setup --llm-model <another-installed-ollama-model>
 ```
 
 Use a model that appears in `ollama list`.

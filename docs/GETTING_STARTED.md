@@ -156,17 +156,17 @@ curl -fsSL https://ollama.com/install.sh | sh
 Pull a small model:
 
 ```bash
-ollama pull qwen3:1.7b
+ollama pull <model-name>
 ```
 
 Then configure 8mem:
 
 ```bash
-8mem setup --llm-model qwen3:1.7b
+8mem setup --llm-model <your-installed-ollama-model>
 8mem doctor
 ```
 
-You can use another installed Ollama model. 8mem should point to a model that exists on your machine.
+Example small model: `qwen3:1.7b`. You can use any installed Ollama model. 8mem should point to a model that exists on your machine.
 
 Check installed models:
 

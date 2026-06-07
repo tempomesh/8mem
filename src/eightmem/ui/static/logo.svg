@@ -120,7 +120,7 @@
     <rect x="131" y="110" width="8" height="8" fill="#f0c86d" />
     <rect x="147" y="110" width="8" height="8" fill="#f0c86d" />
   </g>
-  <g fill="#7fa8ff" font-family="Arial Black, Arial, sans-serif" font-size="112" font-weight="900">
-    <text x="170" y="108" letter-spacing="1">mem</text>
+  <g fill="#7fa8ff" stroke="#4f6fb6" stroke-width="1.5" paint-order="stroke fill" shape-rendering="crispEdges" font-family="'Courier New', monospace" font-size="108" font-weight="900">
+    <text x="172" y="108" letter-spacing="-8">mem</text>
   </g>
 </svg>

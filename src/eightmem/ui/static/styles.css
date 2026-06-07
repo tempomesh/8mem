@@ -41,8 +41,10 @@ a{text-decoration:none;color:inherit}
   padding:18px;border-radius:24px;background:linear-gradient(160deg,#fff,#fff6e5);
   border:1px solid rgba(211,154,54,.16);box-shadow:var(--shadow);margin-bottom:18px;
 }
-.brand-logo{display:block;width:100%;max-width:214px;height:auto}
+.brand-logo{display:block;width:100%;max-width:224px;height:auto}
 .brand p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.45}
+.brand-tagline span{display:block}
+.brand-tagline span + span{color:#8a94a8}
 .nav{display:grid;gap:6px}
 .nav-section{
   margin:14px 12px 4px;color:#8a93a3;font-size:11px;font-weight:900;
@@ -194,6 +196,9 @@ body[data-theme="dark"] .crumb,
 body[data-theme="dark"] .small{
   color:#aab4c6;
 }
+body[data-theme="dark"] .brand-tagline span + span{
+  color:#c4cad8;
+}
 body[data-theme="dark"] .topbar-title,
 body[data-theme="dark"] .card h3,
 body[data-theme="dark"] .header h2,
@@ -264,6 +269,8 @@ body[data-theme="dark"] input[type="file"]{background:#111827;color:#eff4ff;bord
   }
   .brand-logo{width:150px;max-width:42vw}
   .brand p{margin:0;font-size:13px}
+  .brand-tagline span:first-child{display:inline}
+  .brand-tagline span + span{display:block}
   .nav{
     display:flex;gap:8px;width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;padding:2px 2px 8px;scroll-snap-type:x proximity;
     -webkit-overflow-scrolling:touch;

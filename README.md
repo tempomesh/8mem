@@ -31,7 +31,7 @@ AI agents can use tools, write code, browse the web, and run workflows. But acro
 
 It works as a standalone browser product first. Telegram, OpenClaw, and Hermes can be added when those runtimes are ready on the user's machine.
 
-Created by Ashish Verma, founder of [8mem.com](https://8mem.com).
+Built by 8mem for people who want AI memory they can inspect, correct, and carry across agents.
 
 ## Real-Time Cross-Agent Memory
 
@@ -119,7 +119,7 @@ pip install 8mem
 Set up local runtime:
 
 ```bash
-8mem setup --llm-model qwen3:1.7b
+8mem setup --llm-model <your-installed-ollama-model>
 8mem doctor
 ```
 
@@ -260,7 +260,7 @@ Runtime config is written under `~/.8mem`. User memory is stored on the user's m
 
 ## Status
 
-8mem `0.1.8` is the current prepared public release.
+8mem `0.1.9` is the current prepared public release.
 
 ```bash
 pipx install 8mem

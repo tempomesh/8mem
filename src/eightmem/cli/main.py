@@ -4556,7 +4556,7 @@ def _prompt_model_name(default_model: str, max_attempts: int = 2) -> str:
         if normalized:
             return normalized
         remaining = max_attempts - attempt - 1
-        message = "Model must look like qwen3:1.7b or qwen2.5:14b. Press Enter to use the default."
+        message = "Use a model name from `ollama list`, for example qwen3:1.7b or qwen2.5:14b. Press Enter to use the default."
         if remaining:
             typer.secho(message, fg=typer.colors.YELLOW)
         else:
