@@ -1,4 +1,4 @@
-# 8mem
+# 8mem.com
 
 <p align="center">
   <img src="assets/logo.svg" alt="8mem logo" width="340">
@@ -11,13 +11,19 @@
 </p>
 
 <p align="center">
-  8mem is a local-first memory layer for AI agents, agent runtimes, and developer tools.
+  8mem is an agent memory layer for AI agents, agent runtimes, and developer tools.
+</p>
+
+<p align="center">
+  <a href="https://8mem.com"><strong>8mem.com</strong></a> ·
+  <a href="https://pypi.org/project/8mem/">PyPI</a> ·
+  <a href="docs/GETTING_STARTED.md">Docs</a>
 </p>
 
 <p align="center">
   <a href="https://pypi.org/project/8mem/"><img alt="PyPI" src="https://img.shields.io/pypi/v/8mem?color=7fa8ff"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-f0c86d"></a>
-  <img alt="Local first" src="https://img.shields.io/badge/local--first-memory-1f2937">
+  <img alt="Visible correctable portable shared" src="https://img.shields.io/badge/visible.correctable.portable.shared-1f2937">
   <img alt="Agent memory" src="https://img.shields.io/badge/agent-memory-2ca5e0">
 </p>
 
@@ -31,7 +37,7 @@ AI agents can use tools, write code, browse the web, and run workflows. But acro
 
 It works as a standalone browser product first. Telegram, OpenClaw, and Hermes can be added when those runtimes are ready on the user's machine.
 
-Built by 8mem for people who want AI memory they can inspect, correct, and carry across agents.
+Built for people who want AI memory they can inspect, correct, and carry across agents.
 
 ## Real-Time Cross-Agent Memory
 
@@ -65,7 +71,7 @@ Agent memory needs a real delete path.
 
 When a fact is forgotten in 8mem, other agents stop using it.
 
-## Local Memory Dashboard
+## Memory Dashboard
 
 ![8mem dashboard](assets/8mem-dashboard.gif)
 
@@ -91,7 +97,7 @@ http://127.0.0.1:8787
 | Correctable memory | Fix wrong assumptions before they spread. |
 | Forget flow | Remove stale facts with confirmation and audit trail. |
 | Portable context | Reuse memory across agents, tools, and local apps. |
-| Local-first storage | Keep memory on your machine by default. |
+| User-owned storage | Keep memory under your control by default. |
 | Runtime adapters | Connect memory into Telegram, OpenClaw, Hermes, and local workflows. |
 
 ## Quickstart
@@ -183,32 +189,6 @@ correct my update style to short and risk-aware
 forget my old launch room
 ```
 
-## Architecture
-
-![8mem memory flow](assets/memory-flow.svg)
-
-```text
-User
-  -> Telegram or local UI
-  -> 8mem API
-  -> memory service
-  -> Markdown + JSONL + SQLite
-  -> context export
-  -> AI runtime
-```
-
-The core truth path is readable and local:
-
-- Markdown memory files
-- JSONL event history
-- SQLite structured facts
-
-Optional semantic retrieval is available for larger memory sets:
-
-```bash
-pip install "8mem[semantic]"
-```
-
 ## Runtime Integrations
 
 8mem integrates with agent runtimes by exporting current memory as context and by handling explicit memory writes.
@@ -248,13 +228,13 @@ The public package includes:
 - sample data for first-run browser testing
 - OpenClaw/Hermes adapter resources
 - Apache-2.0 `LICENSE`
-- founder/brand `NOTICE`
+- Apache-2.0 `NOTICE`
 
 It does not include private runtime data, user memory, API keys, bot tokens, local machine paths, or internal launch documents.
 
 ## Privacy Model
 
-8mem is local-first.
+8mem keeps memory under the user's control by default.
 
 Runtime config is written under `~/.8mem`. User memory is stored on the user's machine by default. Telegram/OpenClaw/Hermes tokens are supplied locally by the user during setup.
 
