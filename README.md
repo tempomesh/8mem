@@ -260,7 +260,7 @@ Runtime config is written under `~/.8mem`. User memory is stored on the user's m
 
 ## Status
 
-8mem `0.1.10` is the current prepared public release.
+8mem `0.1.11` is the current prepared public release.
 
 ```bash
 pipx install 8mem
