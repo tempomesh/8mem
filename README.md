@@ -260,7 +260,7 @@ Runtime config is written under `~/.8mem`. User memory is stored on the user's m
 
 ## Status
 
-8mem `0.1.9` is the current prepared public release.
+8mem `0.1.10` is the current prepared public release.
 
 ```bash
 pipx install 8mem
@@ -271,4 +271,4 @@ pipx install 8mem
 
 8mem source code is licensed under the Apache License, Version 2.0. See `LICENSE` and `NOTICE`.
 
-The 8mem name, logo, and brand assets are brand identifiers of Ashish Verma / 8mem. The license does not grant permission to misrepresent ownership, impersonate 8mem, or use the 8mem brand in a misleading way.
+The 8mem name, logo, 8mem.com identity, and brand assets are brand identifiers of 8mem. The license does not grant permission to misrepresent ownership, impersonate 8mem, or use the 8mem brand in a misleading way.

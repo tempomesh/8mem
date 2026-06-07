@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "8mem"
-version = "0.1.9"
+version = "0.1.10"
 description = "Agent memory your AI can finally keep. Visible. Correctable. Portable. Shared."
 readme = "README.md"
 requires-python = ">=3.11"
-authors = [{ name = "Ashish Verma" }]
+authors = [{ name = "8mem" }]
 maintainers = [{ name = "8mem Contributors" }]
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
