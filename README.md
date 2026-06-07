@@ -135,6 +135,14 @@ Stop:
 8mem stop
 ```
 
+Need the full first-run guide?
+
+- [Getting Started](docs/GETTING_STARTED.md)
+- [Telegram Setup](docs/TELEGRAM_SETUP.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Agent Integrations](docs/INTEGRATIONS.md)
+- [Uninstall And Cleanup](docs/UNINSTALL.md)
+
 Uninstall the package:
 
 ```bash
