@@ -12,7 +12,7 @@ authors = [{ name = "8mem" }]
 maintainers = [{ name = "8mem Contributors" }]
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-keywords = ["ai", "memory", "telegram", "local-first", "ollama"]
+keywords = ["ai", "memory", "telegram", "agents", "ollama"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",

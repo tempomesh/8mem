@@ -1,6 +1,6 @@
 # Getting Started With 8mem
 
-8mem is a local-first memory layer for AI agents.
+8mem is an agent memory layer for AI agents.
 
 Tagline:
 
@@ -114,7 +114,7 @@ Examples:
 
 ```text
 I prefer short direct replies.
-I am building a local-first AI memory tool.
+I am building an AI memory tool.
 Do not use emojis in professional answers.
 ```
 
