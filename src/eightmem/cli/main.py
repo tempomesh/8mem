@@ -41,6 +41,11 @@ from eightmem.core.ingestion import (
 from eightmem.core.paths import ensure_runtime_dirs, runtime_home
 from eightmem.core.pipeline import analyze_chat_export
 from eightmem.core.templates import copy_default_templates
+from eightmem.services.context_service import (
+    DEFAULT_CONTEXT_ITEM_LIMIT,
+    DEFAULT_CONTEXT_TOKEN_BUDGET,
+    compile_governed_context,
+)
 from eightmem.llm.ollama import (
     DEFAULT_BASE_URL,
     DEFAULT_MODEL,
@@ -52,6 +57,7 @@ from eightmem.llm.ollama import (
 )
 from eightmem.mirror.summary import build_mirror_text
 from eightmem.services.memory_service import (
+    apply_trusted_memory_change,
     apply_memory_dedup,
     apply_memory_updates,
     build_engram_context,
@@ -59,12 +65,42 @@ from eightmem.services.memory_service import (
     forget_memory_entries,
     preview_memory_dedup,
     get_structured_tensions,
+    write_canonical_memory,
 )
 from eightmem.services.webhook_service import build_signed_request, list_connectors, register_connector
 from eightmem.core.sqlite_facts import sqlite_vec_available
 from eightmem.ui.app import create_app
 
-app = typer.Typer(help="8mem: AI forgets. 8mem remembers.")
+app = typer.Typer(help="8mem: governed memory and compressed context for any AI system.")
+
+
+_GENERIC_MEMORY_FILES = {
+    "identity": "IDENTITY.md",
+    "profile": "IDENTITY.md",
+    "belief": "BELIEFS.md",
+    "fact": "BELIEFS.md",
+    "preference": "PREFERENCES.md",
+    "style": "PREFERENCES.md",
+    "correction": "CORRECTIONS.md",
+    "guardrail": "CORRECTIONS.md",
+    "decision": "DECISIONS.md",
+}
+
+
+def _generic_memory_file(category: str) -> str:
+    normalized = category.strip().lower()
+    file_name = _GENERIC_MEMORY_FILES.get(normalized)
+    if file_name is None:
+        supported = ", ".join(sorted(_GENERIC_MEMORY_FILES))
+        raise typer.BadParameter(f"Unsupported category. Use one of: {supported}")
+    return file_name
+
+
+def _required_cli_text(value: str, *, field: str) -> str:
+    normalized = value.strip()
+    if not normalized:
+        raise typer.BadParameter(f"{field} must not be empty")
+    return normalized
 
 
 def _pid_file() -> Path:
@@ -5453,6 +5489,101 @@ def mirror() -> None:
     typer.echo(build_mirror_text(mem))
 
 
+@app.command("remember")
+def remember_memory(
+    value: str = typer.Argument(..., help="Durable fact or instruction to remember"),
+    category: str = typer.Option("belief", "--category", "-c", help="identity, belief, preference, correction, or decision"),
+    user_id: str | None = typer.Option(None, "--user-id", help="Optional user-scoped memory ID"),
+    source: str = typer.Option("cli", "--source", help="Source label retained in the audit trail"),
+    confidence: str | None = typer.Option(None, "--confidence", help="Optional source confidence label"),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable JSON"),
+) -> None:
+    """Store one governed memory through the normal deduplication and conflict checks."""
+    normalized_value = _required_cli_text(value, field="value")
+    file_name = _generic_memory_file(category)
+    _prepare_runtime()
+    result = write_canonical_memory(
+        user_id=user_id,
+        file_name=file_name,
+        value=normalized_value,
+        source=source,
+        confidence=confidence,
+    )
+    if json_output:
+        typer.echo(json.dumps(result, indent=2, sort_keys=True))
+    else:
+        status = str(result.get("status") or "unknown")
+        if status == "written":
+            typer.echo(f"Remembered [{category.strip().lower()}]: {normalized_value}")
+        else:
+            typer.echo(f"Memory not written: {status}")
+    if not result.get("ok"):
+        raise typer.Exit(code=2)
+
+
+@app.command("correct")
+def correct_memory(
+    value: str = typer.Argument(..., help="Correct replacement value"),
+    old_value: str | None = typer.Option(None, "--old-value", help="Exact active value being replaced"),
+    category: str = typer.Option("belief", "--category", "-c", help="identity, belief, preference, correction, or decision"),
+    user_id: str | None = typer.Option(None, "--user-id", help="Optional user-scoped memory ID"),
+    source: str = typer.Option("cli", "--source", help="Source label retained in the audit trail"),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable JSON"),
+) -> None:
+    """Apply an explicit correction while retaining governed audit history."""
+    normalized_value = _required_cli_text(value, field="value")
+    normalized_category = category.strip().lower()
+    file_name = _generic_memory_file(category)
+    _prepare_runtime()
+    event = apply_trusted_memory_change(
+        user_id=user_id,
+        file_name=file_name,
+        new_value=normalized_value,
+        trigger="cli_correction",
+        source_message=normalized_value,
+        old_value=old_value.strip() if old_value else None,
+        category=normalized_category,
+        source=source,
+    )
+    result = {
+        "ok": True,
+        "status": "corrected",
+        "user_id": user_id,
+        "correction": event,
+    }
+    if json_output:
+        typer.echo(json.dumps(result, indent=2, sort_keys=True))
+    else:
+        typer.echo(f"Corrected [{normalized_category}]: {normalized_value}")
+
+
+@app.command("compile-context")
+def compile_context_command(
+    query: str = typer.Argument(..., help="Task or question the context should support"),
+    user_id: str | None = typer.Option(None, "--user-id", help="Optional user-scoped memory ID"),
+    max_tokens: int = typer.Option(DEFAULT_CONTEXT_TOKEN_BUDGET, "--max-tokens", min=32, max=32_000),
+    max_items: int = typer.Option(DEFAULT_CONTEXT_ITEM_LIMIT, "--max-items", min=1, max=100),
+    json_output: bool = typer.Option(False, "--json", help="Include governance and compression telemetry as JSON"),
+) -> None:
+    """Compile active governed memory into a relevance-ranked context budget."""
+    _prepare_runtime()
+    try:
+        compiled = compile_governed_context(
+            user_id=user_id,
+            query=query,
+            max_tokens=max_tokens,
+            max_items=max_items,
+            issuer="8mem-cli",
+        )
+    except ValueError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2) from exc
+    if json_output:
+        typer.echo(json.dumps(compiled, indent=2, sort_keys=True))
+    else:
+        typer.echo(compiled["context_text"])
+
+
 @app.command()
 def forget(
     query: str = typer.Argument(..., help="Text to find and remove from saved memory"),
@@ -5522,7 +5653,7 @@ def register(
 
 
 @app.command()
-def serve(host: str = "0.0.0.0", port: int = 8787) -> None:
+def serve(host: str = "127.0.0.1", port: int = 8787) -> None:
     """Launch local web UI."""
     mem = _prepare_runtime()
     copy_default_templates(mem)
@@ -5531,7 +5662,7 @@ def serve(host: str = "0.0.0.0", port: int = 8787) -> None:
 
 @app.command()
 def start(
-    host: str = typer.Option("0.0.0.0", "--host", help="Host interface to bind"),
+    host: str = typer.Option("127.0.0.1", "--host", help="Host interface to bind"),
     port: int = typer.Option(8787, "--port", help="Port to listen on"),
     foreground: bool = typer.Option(False, "--foreground", "--fg", help="Run in the current terminal like `8mem serve`"),
 ) -> None:
@@ -5614,7 +5745,7 @@ def start(
 
 @app.command()
 def status(
-    host: str = typer.Option("0.0.0.0", "--host", help="Host used for readyz probe"),
+    host: str = typer.Option("127.0.0.1", "--host", help="Host used for readyz probe"),
     port: int = typer.Option(8787, "--port", help="Port used for readyz probe"),
 ) -> None:
     """Show background server status."""

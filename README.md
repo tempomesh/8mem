@@ -4,14 +4,14 @@
   <img src="assets/logo.svg" alt="8mem logo" width="340">
 </p>
 
-<h2 align="center">Agent memory your AI can finally keep.</h2>
+<h2 align="center">Governed memory and compressed context for any AI.</h2>
 
 <p align="center">
-  <strong>Visible. Correctable. Portable. Shared.</strong>
+  <strong>Governed. Corrected. Scoped. Compressed.</strong>
 </p>
 
 <p align="center">
-  8mem is an agent memory layer for AI agents, agent runtimes, and developer tools.
+  8mem is a governed memory and compressed-context engine for any AI application, agent, workflow, model, or gateway.
 </p>
 
 <p align="center">
@@ -31,13 +31,13 @@
 curl -fsSL https://8mem.com/install.sh | bash
 ```
 
-AI agents can use tools, write code, browse the web, and run workflows. But across sessions and runtimes, they still forget the user, repeat stale assumptions, and hide memory inside chat history.
+AI applications can use tools, write code, browse the web, and run workflows. But across sessions, models, and runtimes, they still forget the user, repeat stale assumptions, resend the same context on every call, and hide memory inside chat history.
 
-8mem gives agents a memory layer the user can actually inspect, correct, forget, and reuse.
+8mem gives any AI application a governed memory it can trust: the user can inspect it, correct it, forget it — enforced, with an audit trail — and 8mem compiles only the relevant, active memory into the smallest context the task needs.
 
-It works as a standalone browser product first. Telegram, OpenClaw, and Hermes can be added when those runtimes are ready on the user's machine.
+It works as a standalone browser product first, with a CLI and an authenticated REST API. Telegram, OpenClaw, and Hermes are reference adapters that can be added when those runtimes are ready on the user's machine.
 
-Built for people who want AI memory they can inspect, correct, and carry across agents.
+Built for people who want AI memory they can inspect, correct, compress, and carry across every AI tool they use.
 
 ## Real-Time Cross-Agent Memory
 
@@ -89,6 +89,24 @@ Open:
 http://127.0.0.1:8787
 ```
 
+## Compile The Smallest Governed Context
+
+Ask 8mem for exactly the context one task needs:
+
+```bash
+8mem compile-context "Draft an investor update in my style" --max-tokens 400 --json
+```
+
+The compiler is deterministic and honest about what it measures:
+
+- only active memory is eligible: corrected values replace old ones, forgotten values are excluded
+- items are ranked against the task, deduplicated, and cut to your token and item budgets
+- every selected item keeps its source and confidence
+- output reports estimated source tokens, compiled tokens, and what was omitted
+
+The same compiler is available in the browser at `/compile` and over REST at
+`POST /v1/context/compile`. Token numbers are estimates, not provider billing claims.
+
 ## What 8mem Gives You
 
 | Capability | What it means |
@@ -96,6 +114,9 @@ http://127.0.0.1:8787
 | Visible memory | See what the AI believes and uses. |
 | Correctable memory | Fix wrong assumptions before they spread. |
 | Forget flow | Remove stale facts with confirmation and audit trail. |
+| Governed lifecycle | Remember, propose, approve, correct, forget — with audit events. |
+| Compressed context | Deterministic relevance ranking, deduplication, and token budgets. |
+| Scoped access | Per-user memory isolation with authenticated API access. |
 | Portable context | Reuse memory across agents, tools, and local apps. |
 | User-owned storage | Keep memory under your control by default. |
 | Runtime adapters | Connect memory into Telegram, OpenClaw, Hermes, and local workflows. |
@@ -198,6 +219,7 @@ forget my old launch room
 | Telegram | Primary user-facing memory flow. |
 | OpenClaw | 8mem provides adapter/template code; OpenClaw is separate and not bundled. |
 | Hermes | 8mem provides adapter/template code; Hermes is separate and not bundled. |
+| Any application | Call `GET /v1/context` or `POST /v1/context/compile` over authenticated REST. |
 | Local apps | Use the local API and context export path. |
 | ChatGPT / Claude | Use exported portable context; they are not bundled inside 8mem. |
 
@@ -240,7 +262,7 @@ Runtime config is written under `~/.8mem`. User memory is stored on the user's m
 
 ## Status
 
-8mem `0.1.11` is the current prepared public release.
+8mem `0.1.12` is the current prepared public release.
 
 ```bash
 pipx install 8mem

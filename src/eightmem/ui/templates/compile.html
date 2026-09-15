@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="header">
+  <div>
+    <div class="kicker">Context Compiler</div>
+    <h2 style="margin:8px 0 0">Build the smallest governed context for this task.</h2>
+    <div class="small">Active memory only. Corrections applied. Forget enforced. No model call required.</div>
+  </div>
+  <span class="badge green">Deterministic</span>
+</div>
+
+<div class="grid context-workbench">
+  <div class="card">
+    <h3>Task and budget</h3>
+    <form method="post" action="/compile{{ active_scope.query_suffix }}">
+      <label class="field-label" for="query">What is the AI doing?</label>
+      <textarea class="chat-input compact" id="query" name="query" placeholder="Example: Which database should production use?">{{ query }}</textarea>
+      <div class="budget-grid">
+        <label>
+          <span class="field-label">Maximum tokens</span>
+          <input type="number" name="max_tokens" min="32" max="32000" value="{{ max_tokens }}" />
+        </label>
+        <label>
+          <span class="field-label">Maximum memory items</span>
+          <input type="number" name="max_items" min="1" max="100" value="{{ max_items }}" />
+        </label>
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="submit">Compile governed context</button>
+      </div>
+    </form>
+    {% if error %}<div class="footer error-panel">{{ error }}</div>{% endif %}
+  </div>
+
+  <div class="card governance-card">
+    <h3>Policy applied before output</h3>
+    <div class="policy-list">
+      <span><b>01</b> User scope enforced</span>
+      <span><b>02</b> Inactive and forgotten memory excluded</span>
+      <span><b>03</b> Superseded corrections removed</span>
+      <span><b>04</b> Relevant items ranked and deduplicated</span>
+      <span><b>05</b> Token and item budgets enforced</span>
+    </div>
+  </div>
+</div>
+
+{% if compiled %}
+<div class="grid cols-3 compression-stats">
+  <div class="card stat-card">
+    <div class="small">Source estimate</div>
+    <div class="metric">{{ compiled.compression.source_tokens_estimated }}</div>
+    <div class="small">tokens before selection</div>
+  </div>
+  <div class="card stat-card">
+    <div class="small">Compiled estimate</div>
+    <div class="metric">{{ compiled.compression.output_tokens_estimated }}</div>
+    <div class="small">tokens sent to the model</div>
+  </div>
+  <div class="card stat-card">
+    <div class="small">Estimated reduction</div>
+    <div class="metric">{{ (compiled.compression.compression_ratio * 100) | round | int }}%</div>
+    <div class="small">{{ compiled.compression.omitted_item_count }} memory items omitted</div>
+  </div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <div class="header">
+      <div>
+        <div class="kicker">Output</div>
+        <h3>Prompt-ready context</h3>
+      </div>
+      <span class="badge blue">{{ compiled.compression.selected_item_count }} selected</span>
+    </div>
+    <div class="preview context-output">{{ compiled.context_text if compiled.context_text else "No relevant active memory matched this task." }}</div>
+  </div>
+  <div class="card">
+    <div class="header">
+      <div>
+        <div class="kicker">Evidence</div>
+        <h3>Why each memory was selected</h3>
+      </div>
+      <span class="badge green">Read only</span>
+    </div>
+    <div class="list">
+      {% for item in compiled['items'] %}
+      <div class="item context-item">
+        <div><strong>{{ item.category | title }}</strong><span class="score">{{ (item.relevance_score * 100) | round | int }} relevance</span></div>
+        <p>{{ item.value }}</p>
+        <div class="small">Source: {{ item.source }} · Confidence: {{ item.confidence }}</div>
+      </div>
+      {% else %}
+      <div class="item"><span class="small">No active memory selected.</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
