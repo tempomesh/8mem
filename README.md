@@ -39,13 +39,23 @@ It works as a standalone browser product first. Telegram, OpenClaw, and Hermes c
 
 Built for people who want AI memory they can inspect, correct, and carry across agents.
 
-## Real-Time Cross-Agent Memory
+## One Memory, Every Agent
 
 ![8mem real-time cross-agent memory](assets/8mem-cross-agent-memory.gif)
 
-Viri is an OpenClaw agent. Govi is a Hermes agent.
+Claude, ChatGPT, Telegram bots, OpenClaw, and Hermes — all reading one governed memory.
 
-8mem gives both agents the same portable memory. Save once, reuse across runtimes.
+Save a fact once and every connected agent uses it: same preferences, same context, no copy-paste, no re-explaining. Each reply shows which model answered and how much context 8mem saved.
+
+## Part of the 8mem Gateway
+
+8mem is the memory layer of a small open stack for running agents cheaply and provably — **remember → reuse → route.** Start with memory; add the others as you grow.
+
+| Layer | Project | What it does |
+|---|---|---|
+| **Memory** | **8mem** (this repo) | governed agent memory — remembers context, safely |
+| **State** | [DecaState](https://github.com/tempomesh/DecaState) | forwards any AI call byte-for-byte, proves what it cost, reuses inference state |
+| **Routing** | [Pulse Decide](https://huggingface.co/RouterML/pulse-decide-150m) | routes each call to the cheapest capable path — decides on-device, escalates when unsure |
 
 ## Correct Once. Update Everywhere.
 
