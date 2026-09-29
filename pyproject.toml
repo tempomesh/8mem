@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "8mem"
-version = "0.1.11"
-description = "Agent memory your AI can finally keep. Visible. Correctable. Portable. Shared."
+version = "0.1.12"
+description = "Governed memory and compressed context for any AI system."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "8mem" }]
 maintainers = [{ name = "8mem Contributors" }]
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-keywords = ["ai", "memory", "telegram", "agents", "ollama"]
+keywords = ["ai", "memory", "context-compression", "governance", "local-first"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",

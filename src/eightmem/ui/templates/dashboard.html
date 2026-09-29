@@ -2,16 +2,16 @@
 {% block content %}
 <div class="header">
   <div>
-    <div class="kicker">Memory Passport</div>
-    <h2 style="margin:8px 0 0">Agent memory your AI can finally keep.</h2>
-    <div class="small">Visible. Correctable. Portable. Shared.</div>
+    <div class="kicker">Governed Memory</div>
+    <h2 style="margin:8px 0 0">Control what AI remembers and what context it receives.</h2>
+    <div class="small">Scoped. Correctable. Forgettable. Compressed.</div>
     <div class="small">Active profile: <strong>{{ active_scope.label }}</strong></div>
   </div>
-  <span class="badge green">Portable memory ready</span>
+  <span class="badge green">Governance active</span>
 </div>
 
 {% if status == "remembered" %}
-<div class="footer">Saved. 8mem can now use this memory in browser, Telegram, and connected agents.</div>
+<div class="footer">Saved. This memory is now available to authorized 8mem clients.</div>
 {% elif status == "remember-duplicate" %}
 <div class="footer">Already in memory.</div>
 {% elif status == "remember-review" %}
@@ -47,7 +47,7 @@
         <div class="kicker">First memory</div>
         <h3>Teach 8mem something to remember</h3>
       </div>
-      <span class="badge gold">Browser works without Telegram</span>
+      <span class="badge gold">No external runtime required</span>
     </div>
     <p class="small">
       Use this box to save memory. The Memory Test page only asks questions using memory that already exists.
@@ -56,7 +56,7 @@
       <textarea class="chat-input" name="value" placeholder="Example: I prefer short, direct replies with no emojis."></textarea>
       <div class="actions">
         <button class="btn primary" type="submit">Remember this</button>
-        <a class="btn" href="/chat{{ active_scope.query_suffix }}">Ask with saved memory</a>
+        <a class="btn" href="/compile{{ active_scope.query_suffix }}">Compile context</a>
         <a class="btn" href="/import{{ active_scope.query_suffix }}">Use sample data</a>
       </div>
     </form>

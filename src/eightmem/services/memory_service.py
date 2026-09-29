@@ -140,12 +140,12 @@ def build_base_context(page: str, user_id: str | None = None) -> dict[str, objec
     }
     active_scope = {
         "kind": "user-scoped" if user_id else "default",
-        "label": f"Telegram / user {user_id}" if user_id else "Default local memory",
+        "label": f"User scope / {user_id}" if user_id else "Default local memory",
         "user_id": user_id,
         "query_suffix": f"?user_id={user_id}" if user_id else "",
         "pill": "User-scoped memory" if user_id else "Default memory",
         "note": (
-            "You are viewing memory for one channel user only."
+            "You are viewing memory for one authorized user scope only."
             if user_id
             else "You are viewing the default local memory set."
         ),
@@ -489,6 +489,19 @@ def write_canonical_memory(
         }
 
     apply_memory_updates({file_name: {value}}, user_id=user_id)
+    mem = get_memory_dir(user_id)
+    _record_memory_event(
+        mem,
+        action="memory_written",
+        file_name=file_name,
+        detail=f"Memory written to {file_name.replace('.md', '').title()}.",
+        trigger="write",
+        category=infer_memory_category(value),
+        new_value=value,
+        new_file=file_name,
+        source=source,
+        status="written",
+    )
     return {
         "ok": True,
         "status": "written",
@@ -583,6 +596,7 @@ def create_memory_proposal(
         new_value=value,
         new_file=file_name,
         source_message=source_message,
+        source=source,
         status="pending",
     )
     return {"ok": True, "status": "proposed", "user_id": user_id, "proposal": proposal}
@@ -666,6 +680,7 @@ def commit_memory_proposal(
                 new_value=str(proposal.get("value") or ""),
                 new_file=str(proposal.get("file") or ""),
                 source_message=str(proposal.get("source_message") or ""),
+                source=str(proposal.get("source") or "") or None,
                 status="committed",
             )
         return result | {"proposal": proposal}
@@ -823,6 +838,7 @@ def apply_trusted_memory_change(
     source_message: str,
     old_value: str | None = None,
     category: str | None = None,
+    source: str | None = None,
 ) -> dict[str, str | None]:
     """Apply a user-confirmed memory change and record an auditable old -> new event."""
     mem = get_memory_dir(user_id)
@@ -852,6 +868,7 @@ def apply_trusted_memory_change(
         action="trusted_memory_change",
         file_name=file_name,
         detail=_format_trusted_change_detail(event),
+        source=source,
         **event,
     )
     return event
@@ -862,11 +879,33 @@ def _find_exact_active_memory(user_id: str | None, value: str) -> dict[str, str]
     if not normalized:
         return None
     sections = _safe_retrieval_sections(user_id)
-    for file_name in ("PREFERENCES.md", "CORRECTIONS.md", "IDENTITY.md", "BELIEFS.md"):
+    for file_name in MEMORY_ORDER:
         for item in sections.get(file_name, []):
             if _normalize_memory_duplicate_key(item) == normalized:
                 return {"file_name": file_name, "value": item}
     return None
+
+
+def build_active_memory_source_map(user_id: str | None = None) -> dict[str, str]:
+    """Map normalized active memory values to their latest recorded source."""
+    memory_dir = get_memory_dir(user_id)
+    active_values = {
+        _active_memory_source_key(item)
+        for items in _read_sections_for_retrieval(memory_dir).values()
+        for item in items
+    }
+    sources: dict[str, str] = {}
+    for event in _load_memory_events(memory_dir):
+        value = str(event.get("new_value") or "").strip()
+        source = str(event.get("source") or "").strip()
+        normalized = _active_memory_source_key(value)
+        if normalized and source and normalized in active_values:
+            sources[normalized] = source
+    return sources
+
+
+def _active_memory_source_key(value: str) -> str:
+    return " ".join(value.lower().strip().rstrip(".").split())
 
 
 def build_corrections_summary(user_id: str | None = None) -> str:
@@ -913,7 +952,7 @@ def find_forget_candidates(
         return []
     normalized_needle = _normalize_memory_duplicate_key(query)
     needle_tokens = set(_semantic_memory_tokens(query))
-    candidate_files = [file_name] if file_name else ["IDENTITY.md", "BELIEFS.md", "PREFERENCES.md", "CORRECTIONS.md"]
+    candidate_files = [file_name] if file_name else [name for name in MEMORY_ORDER if name != "EVOLUTION.md"]
     sections = get_retrieval_sections(user_id)
     matches: list[dict[str, str]] = []
     for candidate_file in candidate_files:
@@ -940,6 +979,7 @@ def forget_memory_entries(
     *,
     user_id: str | None = None,
     file_name: str | None = None,
+    source: str | None = None,
 ) -> list[dict[str, str]]:
     """Delete matching active memory entries and record an auditable deletion event."""
     mem = get_memory_dir(user_id)
@@ -976,6 +1016,7 @@ def forget_memory_entries(
             category=category,
             old_value=value,
             old_file=target_file,
+            source=source,
             status="deleted",
         )
         deleted.append(match)
@@ -1577,6 +1618,139 @@ def build_recent_changes_payload(user_id: str | None = None, *, limit: int = 20)
     }
 
 
+def build_public_source_lineage_payload(user_id: str | None = None, *, limit: int = 20) -> dict[str, object]:
+    """Return source/provenance metadata without public memory values."""
+    mem = get_memory_dir(user_id)
+    events = _load_memory_events(mem)
+    summary: dict[str, dict[str, object]] = {}
+    recent: list[dict[str, object]] = []
+
+    for event in events:
+        source = _public_event_source(event)
+        if source is None:
+            continue
+        occurred_at = str(event.get("ts") or "").strip() or None
+        action = _public_event_action(event)
+        status = _public_event_status(event)
+        category = str(event.get("category") or "").strip() or None
+
+        item = summary.setdefault(
+            source,
+            {
+                "source": source,
+                "status": "connected",
+                "event_count": 0,
+                "last_seen_at": None,
+                "actions": [],
+            },
+        )
+        item["event_count"] = int(item["event_count"]) + 1
+        actions = item["actions"]
+        if isinstance(actions, list) and action not in actions:
+            actions.append(action)
+        if occurred_at:
+            item["last_seen_at"] = occurred_at
+
+        recent.append(
+            {
+                "source": source,
+                "action": action,
+                "status": status,
+                "category": category,
+                "occurred_at": occurred_at,
+            }
+        )
+
+    ordered_sources = sorted(
+        summary.values(),
+        key=lambda item: str(item.get("last_seen_at") or ""),
+        reverse=True,
+    )
+    ordered_recent = list(reversed(recent[-max(1, limit) :]))
+    return {
+        "ok": True,
+        "user_id": user_id,
+        "redaction_status": "passed",
+        "public_payload_mode": "metadata_only",
+        "source_count": len(ordered_sources),
+        "sources": ordered_sources,
+        "recent_events": ordered_recent,
+    }
+
+
+def _public_event_source(event: dict[str, Any]) -> str | None:
+    raw_source = str(event.get("source") or "").strip()
+    if not raw_source:
+        raw_source = _infer_public_event_source(event)
+    normalized = _normalize_public_source(raw_source)
+    return normalized or None
+
+
+def _infer_public_event_source(event: dict[str, Any]) -> str:
+    source_message = str(event.get("source_message") or "").lower()
+    detail = str(event.get("detail") or "").lower()
+    combined = f"{source_message} {detail}"
+    if "openclaw" in combined or "viri" in combined:
+        return "OpenClaw/Viri"
+    if "hermes" in combined or "govi" in combined:
+        return "Hermes/Govi"
+    if "telegram" in combined:
+        return "Telegram"
+    if event.get("action") in {"memory_written", "trusted_memory_change", "forget_memory", "memory_proposed", "memory_proposal_committed"}:
+        return "8mem API"
+    return ""
+
+
+def _normalize_public_source(source: str) -> str:
+    normalized = " ".join(source.replace("_", " ").replace("-", " ").split()).strip()
+    lower = normalized.lower()
+    if not normalized:
+        return ""
+    if "openclaw" in lower or "viri" in lower:
+        return "OpenClaw/Viri"
+    if "hermes" in lower or "govi" in lower:
+        return "Hermes/Govi"
+    if "telegram" in lower:
+        return "Telegram"
+    if lower in {"browser", "web", "ui"}:
+        return "8mem Browser"
+    if "agentcard" in lower or "agent card" in lower:
+        return "AgentCard"
+    if "api" in lower or lower in {"runtime candidate", "connected agent"}:
+        return "8mem API"
+    if re.search(r"[/\\]|:\d{2,5}|bearer|token|key|secret", normalized, flags=re.IGNORECASE):
+        return "8mem API"
+    return normalized[:80]
+
+
+def _public_event_action(event: dict[str, Any]) -> str:
+    action = str(event.get("action") or "").strip()
+    return {
+        "memory_written": "remember",
+        "update_file": "remember",
+        "trusted_memory_change": "correct",
+        "forget_memory": "forget",
+        "memory_proposed": "propose",
+        "memory_proposal_committed": "commit",
+        "memory_proposal_denied": "deny",
+        "memory_dedup_cleanup": "dedupe",
+    }.get(action, action or "unknown")
+
+
+def _public_event_status(event: dict[str, Any]) -> str:
+    status = str(event.get("status") or "").strip()
+    if status:
+        return status
+    action = str(event.get("action") or "")
+    if action == "trusted_memory_change":
+        return "active"
+    if action == "forget_memory":
+        return "deleted"
+    if action in {"memory_written", "update_file"}:
+        return "written"
+    return "recorded"
+
+
 def _normalize_recent_change_detail(
     event: dict[str, Any],
     *,
@@ -1701,6 +1875,49 @@ def build_structured_memory_summary(user_id: str | None = None) -> dict[str, obj
         "semantic_index_enabled": sqlite_vec_available(),
         "highlights": highlights[:5],
         "trust_basis": trust_basis,
+    }
+
+
+def build_public_agent_card_memory_state(user_id: str | None = None) -> dict[str, object]:
+    """Return bounded metadata for a public card without exposing memory values."""
+    mem = get_memory_dir(user_id)
+    sections = _read_sections_for_retrieval(mem)
+    events = _load_memory_events(mem)
+    active_sections = {
+        name: items
+        for name, items in sections.items()
+        if name != "EVOLUTION.md" and items
+    }
+    correction_events = [
+        event
+        for event in events
+        if (
+            event.get("action") == "trusted_memory_change"
+            and event.get("trigger") in {"correction", "contradiction"}
+        )
+        or event.get("action") == "forget_memory"
+    ]
+    recent_corrections = []
+    for event in reversed(correction_events[-5:]):
+        recent_corrections.append(
+            {
+                "type": "forget" if event.get("action") == "forget_memory" else "correction",
+                "category": str(event.get("category") or "memory"),
+                "occurred_at": str(event.get("ts") or "") or None,
+            }
+        )
+    last_memory_update = None
+    for event in reversed(events):
+        timestamp = str(event.get("ts") or "").strip()
+        if timestamp:
+            last_memory_update = timestamp
+            break
+    return {
+        "active_memory_count": sum(len(items) for items in active_sections.values()),
+        "active_category_count": len(active_sections),
+        "recorded_change_count": len(events),
+        "last_memory_update": last_memory_update,
+        "recent_corrections": recent_corrections,
     }
 
 
@@ -2677,6 +2894,7 @@ def _record_memory_event(
     new_value: str | None = None,
     new_file: str | None = None,
     source_message: str | None = None,
+    source: str | None = None,
     status: str | None = None,
 ) -> None:
     ts = datetime.now(timezone.utc).isoformat()
@@ -2702,6 +2920,7 @@ def _record_memory_event(
         "new_value": new_value,
         "new_file": new_file,
         "source_message": source_message,
+        "source": source,
         "status": status,
     }.items():
         if value is not None:

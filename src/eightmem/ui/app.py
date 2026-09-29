@@ -48,6 +48,7 @@ from eightmem.services.memory_service import (
     build_base_context,
     build_engram_context,
     build_passport_summary,
+    build_public_source_lineage_payload,
     build_recent_changes_payload,
     commit_memory_proposal,
     create_memory_proposal,
@@ -70,6 +71,16 @@ from eightmem.services.memory_service import (
     save_file_content,
     undo_last_memory_change,
     write_canonical_memory,
+)
+from eightmem.services.agent_card_service import (
+    AgentCardRegistryError,
+    build_agent_card_health,
+    build_agent_card_payload,
+)
+from eightmem.services.context_service import (
+    DEFAULT_CONTEXT_ITEM_LIMIT,
+    DEFAULT_CONTEXT_TOKEN_BUDGET,
+    compile_governed_context,
 )
 from eightmem.services.compare_card import CompareCardContent, parse_passport_summary, render_compare_card, render_passport_card
 from eightmem.services.telegram_service import build_telegram_approval_message
@@ -184,6 +195,52 @@ def create_app() -> FastAPI:
         )
         return templates.TemplateResponse(request, "chat.html", context)
 
+    @app.get("/compile", response_class=HTMLResponse)
+    def compile_page(request: Request, user_id: str | None = Query(default=None)) -> HTMLResponse:
+        context = build_base_context("compile", user_id=user_id)
+        context.update(
+            {
+                "query": "",
+                "max_tokens": DEFAULT_CONTEXT_TOKEN_BUDGET,
+                "max_items": DEFAULT_CONTEXT_ITEM_LIMIT,
+                "compiled": None,
+                "error": None,
+            }
+        )
+        return templates.TemplateResponse(request, "compile.html", context)
+
+    @app.post("/compile", response_class=HTMLResponse)
+    def compile_submit(
+        request: Request,
+        query: str = Form(default=""),
+        max_tokens: int = Form(default=DEFAULT_CONTEXT_TOKEN_BUDGET),
+        max_items: int = Form(default=DEFAULT_CONTEXT_ITEM_LIMIT),
+        user_id: str | None = Query(default=None),
+    ) -> HTMLResponse:
+        context = build_base_context("compile", user_id=user_id)
+        compiled: dict[str, Any] | None = None
+        error: str | None = None
+        try:
+            compiled = compile_governed_context(
+                user_id=user_id,
+                query=query,
+                max_tokens=max_tokens,
+                max_items=max_items,
+                issuer="8mem-local-ui",
+            )
+        except ValueError as exc:
+            error = str(exc)
+        context.update(
+            {
+                "query": query,
+                "max_tokens": max_tokens,
+                "max_items": max_items,
+                "compiled": compiled,
+                "error": error,
+            }
+        )
+        return templates.TemplateResponse(request, "compile.html", context)
+
     @app.get("/healthz")
     def healthz() -> JSONResponse:
         return JSONResponse({"ok": True, "status": "healthy"})
@@ -239,6 +296,105 @@ def create_app() -> FastAPI:
 
         return JSONResponse(build_engram_context(user_id=resolved_user_id, issuer=issuer))
 
+    @app.post("/v1/context/compile")
+    async def runtime_context_compile(
+        request: Request,
+        authorization: str | None = Header(default=None),
+    ) -> JSONResponse:
+        payload = await _read_json_payload(request)
+        if isinstance(payload, JSONResponse):
+            return payload
+        auth_error, resolved_user_id = _resolve_runtime_user_id(
+            authorization,
+            _payload_optional_text(payload, "user_id"),
+        )
+        if auth_error is not None:
+            return auth_error
+
+        query = _payload_text(payload, "query")
+        if not query:
+            return JSONResponse(
+                {"ok": False, "error": "Missing required string field: query"},
+                status_code=400,
+            )
+        max_tokens = _payload_int(
+            payload,
+            "max_tokens",
+            default=DEFAULT_CONTEXT_TOKEN_BUDGET,
+        )
+        max_items = _payload_int(
+            payload,
+            "max_items",
+            default=DEFAULT_CONTEXT_ITEM_LIMIT,
+        )
+        issuer = os.getenv("EIGHTMEM_CONTEXT_ISSUER")
+        if not issuer:
+            host = request.headers.get("host") or "localhost:8787"
+            scheme = request.url.scheme or "http"
+            issuer = f"{scheme}://{host}"
+        try:
+            compiled = compile_governed_context(
+                user_id=resolved_user_id,
+                query=query,
+                max_tokens=max_tokens,
+                max_items=max_items,
+                issuer=issuer,
+            )
+        except ValueError as exc:
+            return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+        return JSONResponse(compiled)
+
+    @app.get("/v1/agent-card/{agent_id}")
+    def agent_card(agent_id: str) -> JSONResponse:
+        try:
+            payload = build_agent_card_payload(agent_id)
+        except AgentCardRegistryError as exc:
+            return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+        if payload is None:
+            return JSONResponse({"ok": False, "error": "Agent not found"}, status_code=404)
+        return JSONResponse(payload)
+
+    @app.get("/v1/agent-card/{agent_id}/memory")
+    def agent_card_memory(agent_id: str) -> JSONResponse:
+        try:
+            payload = build_agent_card_payload(agent_id)
+        except AgentCardRegistryError as exc:
+            return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+        if payload is None:
+            return JSONResponse({"ok": False, "error": "Agent not found"}, status_code=404)
+        return JSONResponse(
+            {
+                "agent_id": payload["agent_id"],
+                "memory_provider": payload["memory_provider"],
+                "memory_summary": payload["memory_summary"],
+                "recent_corrections": payload["recent_corrections"],
+                "active_memory_count": payload["active_memory_count"],
+                "active_category_count": payload["active_category_count"],
+                "capabilities": payload["capabilities"],
+                "privacy": payload["privacy"],
+            }
+        )
+
+    @app.get("/v1/agent-card/{agent_id}/sources")
+    def agent_card_sources(agent_id: str) -> JSONResponse:
+        try:
+            payload = build_agent_card_payload(agent_id)
+        except AgentCardRegistryError as exc:
+            return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+        if payload is None:
+            return JSONResponse({"ok": False, "error": "Agent not found"}, status_code=404)
+        return JSONResponse({"agent_id": payload["agent_id"], **payload["source_summary"]})
+
+    @app.get("/v1/agent-card/{agent_id}/health")
+    def agent_card_health(agent_id: str) -> JSONResponse:
+        try:
+            payload = build_agent_card_health(agent_id)
+        except AgentCardRegistryError as exc:
+            return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+        if payload is None:
+            return JSONResponse({"ok": False, "error": "Agent not found"}, status_code=404)
+        return JSONResponse(payload)
+
     @app.get("/.well-known/engram")
     def engram_discovery(request: Request) -> JSONResponse:
         issuer = os.getenv("EIGHTMEM_CONTEXT_ISSUER")
@@ -251,6 +407,7 @@ def create_app() -> FastAPI:
                 "engram_version": "0.1",
                 "issuer": issuer,
                 "context_endpoint": f"{issuer}/v1/context",
+                "context_compile_endpoint": f"{issuer}/v1/context/compile",
                 "correction_endpoint": f"{issuer}/v1/context/correct",
                 "keys_endpoint": f"{issuer}/.well-known/engram-keys",
                 "auth": {"type": "bearer"},
@@ -261,6 +418,7 @@ def create_app() -> FastAPI:
                 },
                 "capabilities": {
                     "context": True,
+                    "context_compile": True,
                     "correction_alias": True,
                     "memory_write": True,
                     "connectors": True,
@@ -290,6 +448,48 @@ def create_app() -> FastAPI:
                         "note": "8mem reference implementation currently returns signature.value=unsigned-v1; cryptographic verification is not enabled.",
                     }
                 ],
+            }
+        )
+
+    @app.get("/.well-known/8mem")
+    def eightmem_discovery(request: Request) -> JSONResponse:
+        host = request.headers.get("host") or "localhost:8787"
+        scheme = request.url.scheme or "http"
+        base_url = f"{scheme}://{host}"
+        return JSONResponse(
+            {
+                "product": "8mem",
+                "product_class": "governed_memory_and_context_compression",
+                "version": "v1",
+                "runtime_neutral": True,
+                "authentication": {"type": "bearer"},
+                "scope": {"type": "user", "deny_cross_scope_when_configured": True},
+                "endpoints": {
+                    "remember": f"{base_url}/v1/memory",
+                    "propose": f"{base_url}/v1/memory/propose",
+                    "commit": f"{base_url}/v1/memory/commit",
+                    "correct": f"{base_url}/v1/context/correct",
+                    "forget": f"{base_url}/v1/forget",
+                    "context": f"{base_url}/v1/context",
+                    "compile": f"{base_url}/v1/context/compile",
+                    "sources": f"{base_url}/v1/sources",
+                    "changes": f"{base_url}/v1/changes",
+                    "health": f"{base_url}/healthz",
+                    "readiness": f"{base_url}/readyz",
+                },
+                "governance": {
+                    "correction": True,
+                    "forget": True,
+                    "proposal_approval": True,
+                    "source_lineage": True,
+                    "active_only_compilation": True,
+                },
+                "compression": {
+                    "deterministic_relevance": True,
+                    "deduplication": True,
+                    "token_budget": True,
+                    "telemetry": True,
+                },
             }
         )
 
@@ -368,6 +568,17 @@ def create_app() -> FastAPI:
         if auth_error is not None:
             return auth_error
         return JSONResponse(build_recent_changes_payload(user_id=resolved_user_id, limit=limit))
+
+    @app.get("/v1/sources")
+    def runtime_sources(
+        user_id: str | None = Query(default=None),
+        limit: int = Query(default=20, ge=1, le=100),
+        authorization: str | None = Header(default=None),
+    ) -> JSONResponse:
+        auth_error, resolved_user_id = _resolve_runtime_user_id(authorization, user_id)
+        if auth_error is not None:
+            return auth_error
+        return JSONResponse(build_public_source_lineage_payload(user_id=resolved_user_id, limit=limit))
 
     @app.get("/v1/connectors")
     def runtime_connectors_list(
@@ -607,6 +818,7 @@ def create_app() -> FastAPI:
             source_message=_payload_optional_text(payload, "source_message") or value,
             old_value=_payload_optional_text(payload, "old_value") or _payload_optional_text(payload, "old_text"),
             category=_payload_optional_text(payload, "category") or infer_memory_category(normalized),
+            source=_payload_optional_text(payload, "source"),
         )
         connector_notifications = _notify_connectors_safely("memory.corrected", user_id=user_id)
         return JSONResponse(
@@ -662,7 +874,12 @@ def create_app() -> FastAPI:
                 }
             )
 
-        deleted = forget_memory_entries(query, user_id=user_id, file_name=file_name)
+        deleted = forget_memory_entries(
+            query,
+            user_id=user_id,
+            file_name=file_name,
+            source=_payload_optional_text(payload, "source"),
+        )
         connector_notifications = _notify_connectors_safely("memory.forgotten", user_id=user_id) if deleted else 0
         normalized_deleted = [_runtime_memory_candidate(user_id, item) for item in deleted]
         return JSONResponse(

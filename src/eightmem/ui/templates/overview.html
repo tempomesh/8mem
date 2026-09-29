@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="hero">
-  <div class="kicker">Memory layer for AI</div>
-  <h2>Agent memory your AI can finally keep.</h2>
+  <div class="kicker">Governed memory + context compression</div>
+  <h2>Send AI the right memory, not the whole history.</h2>
   <p>
-    Visible. Correctable. Portable. Shared.
-    Save preferences and corrections once, inspect what 8mem remembers, and reuse that memory across browser,
-    Telegram, local models, and connected agent runtimes.
+    Store durable context once, keep it scoped and correctable, enforce forgetting,
+    then compile only the relevant memory for each task and token budget.
   </p>
   <div class="actions">
-    <a class="btn primary" href="/chat{{ active_scope.query_suffix }}">Test chat now</a>
-    <a class="btn primary" href="/{{ active_scope.query_suffix }}">See live dashboard</a>
+    <a class="btn primary" href="/compile{{ active_scope.query_suffix }}">Compile context</a>
+    <a class="btn" href="/{{ active_scope.query_suffix }}">Manage memory</a>
     <a class="btn" href="/import{{ active_scope.query_suffix }}">Import conversations</a>
   </div>
 </section>
@@ -18,18 +17,18 @@
 <div class="grid cols-3">
   <div class="card">
     <div class="badge gold">Step 1</div>
-    <h3>Teach 8mem</h3>
-    <p>Import past conversations or start saving preferences and corrections directly.</p>
+    <h3>Capture governed memory</h3>
+    <p>Save explicit facts, decisions, preferences, and guardrails with source and scope.</p>
   </div>
   <div class="card">
     <div class="badge blue">Step 2</div>
-    <h3>Review memory</h3>
-    <p>See what AI believes about you, resolve contradictions, and keep memory clean.</p>
+    <h3>Correct or forget</h3>
+    <p>Replace stale truth, inspect change history, and remove memory from active context.</p>
   </div>
   <div class="card">
     <div class="badge green">Step 3</div>
-    <h3>Reuse anywhere</h3>
-    <p>Keep your AI behavior consistent across chats, models, and future assistants.</p>
+    <h3>Compile less context</h3>
+    <p>Rank and deduplicate active memory, then enforce a measurable token budget.</p>
   </div>
 </div>
 {% endblock %}
